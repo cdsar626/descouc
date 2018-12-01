@@ -1,0 +1,20 @@
+{
+  "name": "desco",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "compress": "^0.99.0",
+    "compression": "^1.7.3",
+    "cookie-session": "^2.0.0-beta.3",
+    "express": "^4.16.4",
+    "multer": "^1.4.1"
+  }
+}
