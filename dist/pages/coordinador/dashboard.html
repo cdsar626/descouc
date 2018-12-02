@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>DESCO Admin - Dashboard</title>
+    <title>DESCO Facultad - Dashboard</title>
 
     <!-- Bootstrap core CSS-->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -18,7 +18,7 @@
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
 
     <!-- Page level plugin CSS-->
-    <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+    <link href="css/datatables.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin.css" rel="stylesheet">
@@ -92,16 +92,10 @@
 
       <!-- Sidebar -->
       <ul class="sidebar navbar-nav">
-        <li class="nav-item active">
+        <li class="nav-item">
           <a class="nav-link" href="#">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/register">
-            <i class="fas fa-fw fa-address-card"></i>
-            <span>Crear usuario</span>
           </a>
         </li>
         <li class="nav-item dropdown">
@@ -117,7 +111,7 @@
             <div class="dropdown-divider"></div>
             <h6 class="dropdown-header">Other Pages:</h6>
             <a class="dropdown-item" href="404.html">404 Page</a>
-            <a class="dropdown-item" href="blank.html">Blank Page</a>
+            <a class="dropdown-item active" href="blank.html">Blank Page</a>
           </div>
         </li>
       </ul>
@@ -128,43 +122,16 @@
 
           <!-- Breadcrumbs-->
           <ol class="breadcrumb">
-            <li class="breadcrumb-item active">Dashboard</li>
+            <li class="breadcrumb-item active">
+              <!--a href="#">Dashboard</a-->
+              Dashboard
+            </li>
           </ol>
 
-          <!-- DataTables Example -->
-          <div class="card mb-3">
-            <div class="card-header">
-              <i class="fas fa-table"></i>
-              Listado de usuarios</div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                  <thead>
-                    <tr>
-                      <th>Correo</th>
-                      <th>Nombre</th>
-                      <th>Apellido</th>
-                      <th>Rol</th>
-                    </tr>
-                  </thead>
-                  <tfoot>
-                    <tr>
-                      <th>Correo</th>
-                      <th>Nombre</th>
-                      <th>Apellido</th>
-                      <th>Rol</th>
-                    </tr>
-                  </tfoot>
-                  <tbody>
-                    
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="card-footer small text-muted">
-              Última actualización: <span class="fecha"></span>
-            </div>
-          </div>
+          <!-- Page Content -->
+          <h1>Blank Page</h1>
+          <hr>
+          <p>This is a great starting point for new custom pages.</p>
 
         </div>
         <!-- /.container-fluid -->
@@ -218,7 +185,8 @@
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin.js"></script>
 
-    <script src="js/desco-reactive.js"></script>
+    <script src="js/datatables.min.js"></script>
+    <script src="js/desco-reactive-ad.js"></script>
 
   </body>
 
