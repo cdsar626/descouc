@@ -10,11 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
     "compress": "^0.99.0",
     "compression": "^1.7.3",
     "cookie-session": "^2.0.0-beta.3",
     "express": "^4.16.4",
-    "multer": "^1.4.1"
+    "multer": "^1.4.1",
+    "mysql": "^2.16.0"
   }
 }

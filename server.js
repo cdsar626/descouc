@@ -4,12 +4,6 @@ const bodyParser = require('body-parser');
 const session = require('cookie-session');
 const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(compress());
-app.use(express.static('./dist'));
-
 app.use(session({
   name: 'session',
   keys: ['key1', 'key2', 'desco', 'vida'],
@@ -21,6 +15,12 @@ app.use(session({
     maxAge: 1000 * 60,
   }
 }))
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(compress());
+app.use(express.static('./dist'));
 
 app.use(require('./routes.js'));
 

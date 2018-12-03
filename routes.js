@@ -1,10 +1,32 @@
 const express = require('express');
-const session = require('cookie-session');
+const multer = require('multer');
+const pool = require('./bd.js');
 const app = express.Router();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Elije la carpeta donde guardar segun el tipo de proyecto
+    let tipo = req.body.tipoProyecto == 1 ? 'ServicioComunitario/' : 'Extension/';
+    cb(null, 'proyectos/' + tipo);
+  },
+  filename: function (req, file, cb) {
+    // En el nombre del archivo se sustituyen los espacios por _ 
+    cb(null,`${ req.body.nombre.replace(/ /g, '_') }-${ Date.now() }.pdf`);
+  }
+})
+
+const upload = multer({ storage: storage });
+
 
 const options = {
   root: __dirname + '/dist/pages/',
 }
+
+const asyncMiddleware = fn =>
+  (req, res, next) => {
+    Promise.resolve(fn(req, res, next))
+      .catch(next);
+  };
 
 //rol: 
 //// 1: Admin
@@ -83,6 +105,8 @@ app.get('/getUsers', (req, res) => {
   if(req.session.rol == 1) {
     res.json({ data: users });
     console.log('enviando usuarios');
+  } else {
+    forbid(res);
   }
 })
 
@@ -99,36 +123,36 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 })
 
-app.get('/register', (req, res) => {
-  console.log(users);
-  if(req.session.rol == 1) {
+app.get('/register', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 1)) {
     send(res, 'admin/register.html');
   } else {
     forbid(res);
   }
-});
+}) );
+
+app.get('/success', (req, res) => {
+  if(req.session.rol == 4) {
+    send(res, 'facultad/success.html');
+  } else {
+    forbid(res);
+  }
+})
 
 // POST Requests ---------------------------------
 
-app.post('/login', (req, res) => {
-  if(validar_user(req)) { //valid user
-    req.session.user = req.body.email;
-    if(`${req.body.email[0]+req.body.email[1]}` == 'ad'){
-      req.session.rol = 1;
-    } else if(`${req.body.email[0]+req.body.email[1]}` == 'co'){
-      req.session.rol = 2;
-    } else if(`${req.body.email[0]+req.body.email[1]}` == 'ex'){
-      req.session.rol = 3;
-    } else if(`${req.body.email[0]+req.body.email[1]}` == 'fa'){
-      req.session.rol = 4;
-    } else if(`${req.body.email[0]+req.body.email[1]}` == 'sc'){
-      req.session.rol = 5;
-    }
+app.post('/login', asyncMiddleware( async(req, res) => {
+  let user = await verificarUser(req);
+  console.log(user.nick);
+  if(user) { //valid user
+    req.session.user = user.nick;
+    req.session.rol = user.tipo;
+    console.log(req.session);
     res.redirect('/dashboard');
   } else {
     forbid(res);
   }
-});
+}) );
 
 app.post('/editUser', (req, res) => {
   if(req.session.rol === 1) {
@@ -147,6 +171,11 @@ app.post('/register', (req, res) => {
   }
 });
 
+app.post('/uploadProject', upload.single('inputFile'), (req, res) => {
+  console.log(req.body);
+  console.log(req.file);
+  res.redirect('/success');
+})
 
 // Else
 
@@ -162,8 +191,24 @@ function send(res, file) {
   res.sendFile(file, options);
 }
 
-function validar_user(req) {
-  return users.find(x => x.nick == req.body.email) ? true : false;
+async function verificarUser(req) {
+  console.log(req.body);
+  let hashedPass = req.body.clave; 
+  // Se debe 
+  // hashear la clave
+  let resp = await pool.query('SELECT * FROM usuario WHERE nick = ? AND clave = ?', [req.body.nick,hashedPass]);
+  return resp.length ? resp[0] : false;
+}
+
+// Verifica que el usuario y rol concuerden con la bd
+// y que sea el rol que se requiere (parametro rol)
+async function isValidSessionAndRol(req, rol) {
+  let resp = await pool.query('SELECT * FROM usuario WHERE nick = ? AND tipo = ?', [req.session.user,req.session.rol]);
+  if (resp.length) {
+    return req.session.rol == rol;
+  } else {
+    return false;
+  }
 }
 
 module.exports = app;

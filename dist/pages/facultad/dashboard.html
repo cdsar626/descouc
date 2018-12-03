@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es_VE">
+<html lang="es">
 
   <head>
 
@@ -20,6 +20,7 @@
     <!-- Page level plugin CSS-->
     <link href="css/datatables.min.css" rel="stylesheet">
     <link href="css/select2.min.css" rel="stylesheet">
+    <link href="css/select2-bootstrap4.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin.css" rel="stylesheet">
@@ -132,71 +133,49 @@
           <!-- Page Content -->
           <h1>Insertar Proyecto DESCO</h1>
           <hr>
-          <form method="post" action="/editUser">
+          <form method="post" action="/uploadProject" enctype="multipart/form-data">
             <div class="form-group">
-              <div class="form-row">
-                <div class="col-md-6">
                   <div class="form-label-group">
-                    <input type="text" id="" class="form-control" placeholder="Nombre" required="required" autofocus="autofocus" name="nombre">
-                    <label for="firstName">Nombre</label>
+                    <input type="text" id="inputName" class="form-control" placeholder="Nombre del Proyecto" required autofocus name="nombre">
+                    <label for="inputName">Nombre del Proyecto</label>
                   </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-label-group">
-                    <input type="text" id="lastName" class="form-control" placeholder="Apellido" required="required" name="apellido">
-                    <label for="lastName">Apellido</label>
-                  </div>
-                </div>
-              </div>
             </div>
             <div class="form-group">
               <div class="form-row">
-                <div class="col-md-6">
-                  <div class="form-label-group">
-                    <input type="password" id="inputPassword" class="form-control" placeholder="Contraseña" name="clave">
-                    <label for="inputPassword">Contraseña</label>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-label-group">
-                    <input type="password" id="confirmPassword" class="form-control" placeholder="Confirma constrañea" name="reclave">
-                    <label for="confirmPassword">Confirma contraseña</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <div class="form-row">
+
                 <div class="input-group mb-3">
-
                   <div class="input-group-prepend">
-                    <label class="input-group-text" for="inputGroupSelect01">Tipo de Proyecto</label>
+                    <label class="input-group-text" for="selectTipoProyecto">Tipo de Proyecto</label>
                   </div>
-                  <select name="tipo" class="custom-select" id="tipoProyecto">
-                    <option disabled>Escoge...</option>
-                    <option value="1" disabled>Administrador</option>
-                    <option value="2">Coordinador</option>
-                    <option value="3">Extensión</option>
-                    <option value="4">Facultad</option>
-                    <option value="5">Servicio Comunitario</option>
+                  <select required name="tipoProyecto" class="custom-select" id="selectTipoProyecto">
+                    <option value="">Seleccione...</option>
+                    <option value="1">de Servicio Comunitario</option>
+                    <option value="2">de Extensión</option>
                   </select>
-
-                  <div class="input-group-prepend">
-                    <label class="input-group-text" for="inputGroupSelect01">Coordinador</label>
-                  </div>
-                  <select name="tipo" class="custom-select" id="inputGroupSelect01">
-                    <option disabled>Escoge...</option>
-                    <option value="1" disabled>Administrador</option>
-                    <option value="2">Coordinador</option>
-                    <option value="3">Extensión</option>
-                    <option value="4">Facultad</option>
-                    <option value="5">Servicio Comunitario</option>
-                  </select>
-
                 </div>
+                
+                <div id="select2select" class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text" for="selectCoordinador">Coordinador</label>
+                  </div>
+                  <select required name="coordinadorProyecto" class="custom-select" id="selectCoordinador">
+                  </select>
+                </div>
+
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Proyecto</span>
+                  </div>
+                  <div class="custom-file">
+                    <input required type="file" class="custom-file-input" name="inputFile" id="inputFile" accept=".pdf, .PDF">
+                    <label class="custom-file-label" for="inputFile">Escoger Archivo PDF</label>
+                  </div>
+                </div>
+
               </div>
+              <span id="errorPlace"></span>
             </div>
-            <input id="editButton" class="btn btn-primary btn-block" type="submit" value="Editar">
+            <input id="editButton" class="btn btn-primary btn-block" type="submit" value="Enviar">
           </form>
 
         </div>
@@ -253,6 +232,7 @@
 
     <script src="js/datatables.min.js"></script>
     <script src="js/select2.min.js"></script>
+    <script src="js/i18n/es.js"></script>
 
     <script src="js/desco-reactive-fa.js"></script>
 
