@@ -24,4 +24,6 @@ app.use(express.static('./dist'));
 
 app.use(require('./routes.js'));
 
-app.listen(3000, () => console.log('escuchando en puerto 3000'));
+let port = process.env.PORT || 80;
+
+app.listen(port, () => console.log('escuchando en puerto' + port));
