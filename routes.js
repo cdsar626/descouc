@@ -120,7 +120,6 @@ app.get('/logout', (req, res) => {
 
 app.get('/register', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {
-    console.log(await pool.query('INSERT INTO docs VALUES(0,?)', ['holi'] ));
     send(res, 'admin/register.html');
   } else {
     forbid(res);
@@ -139,6 +138,7 @@ app.get('/success', asyncMiddleware( async (req, res) => {
 
 app.post('/login', asyncMiddleware( async(req, res) => {
   let user = await verificarUser(req);
+  console.log('ey');
   console.log(user.email);
   if(user) { //valid user
     req.session.user = user.email;
@@ -152,8 +152,13 @@ app.post('/login', asyncMiddleware( async(req, res) => {
 app.post('/editUser', asyncMiddleware( async (req, res) => {
   console.log(req.body);
   if(await isValidSessionAndRol(req, 1)) {
-    await pool.query('UPDATE usuarios SET email=?, pass=SHA(?), rol=?, facultad=?  WHERE email = ?',
-    [req.body.email, req.body.pass, req.body.rol, req.body.facultad, req.body.email]);
+    if(req.body.pass == undefined) {
+      await pool.query('UPDATE usuarios SET email=?, rol=?, facultad=?  WHERE email = ?',
+      [req.body.email, req.body.rol, req.body.facultad, req.body.email]);
+    } else {
+      await pool.query('UPDATE usuarios SET email=?, pass=SHA(?), rol=?, facultad=?  WHERE email = ?',
+      [req.body.email, req.body.pass, req.body.rol, req.body.facultad, req.body.email]);
+    }
     res.json({data: 'ok'});
   }
 }) );
@@ -181,15 +186,23 @@ app.post('/uploadProject', upload.single('inputFile'),asyncMiddleware(async (req
     req.body.tipoProyecto,
     req.body.areaAtencion,
     req.body.duracionProyecto,
-    //fecha inicio
-    //fechafin
+    `${req.body.anoInicio}-${req.body.mesInicio}-${req.body.diaInicio}`,//fecha inicio
+    `${req.body.anoFin}-${req.body.mesFin}-${req.body.diaFin}`,//fechafin
     req.body.objGeneral,
     req.body.objsEspecificos,
     req.body.tipo,
-    //status
+    0,
+    /* status-----------------------
+    /* 0: propuesta
+    /* 1: a revisar
+    /* 2: rechazado por desco
+    /* 3: validado
+    /* 4: rechazado por consejo
+    /* 5: aprobado 
+    /* ------------------------- */
     //nota
   ]
-  let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', proyData);
+  let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)', proyData);
   let docData = [
     req.file.path,
     req.file.filename,

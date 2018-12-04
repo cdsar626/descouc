@@ -52,7 +52,7 @@ $(document).ready(function() {
         email: user.email,
         rol: $('#selectRol').val() ? $('#selectRol').val() : rolStr2Num(user.rol),
         facultad: $('#selectFacultad').val(),
-        pass: $('#inputPassword').val() ? $('#inputPassword').val() : user.pass,
+        pass: $('#inputPassword').val() ? $('#inputPassword').val() : undefined,
       }
       $.ajax({
         url: '/editUser',

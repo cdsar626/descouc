@@ -6,7 +6,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   user: 'desco',
   password: '12Desco!',
-  database: 'interoperable',
+  database: 'interoperables',
 })
 
 pool.getConnection((err, connection) => {

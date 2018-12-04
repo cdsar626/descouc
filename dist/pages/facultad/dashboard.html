@@ -178,8 +178,8 @@
 
             <div class="form-group">
               <div class="form-label-group">
-                <input type="text" id="areaProyecto" class="form-control" placeholder="Area de atención del proyecto" required name="areaProyecto">
-                <label for="areaProyecto">Area de atención del proyecto</label>
+                <input type="text" id="areaAtencion" class="form-control" placeholder="Area de atención del proyecto" required name="areaAtencion">
+                <label for="areaAtencion">Area de atención del proyecto</label>
               </div>
             </div>
 
@@ -189,10 +189,53 @@
                 <label for="duracionProyecto">Duración del proyecto</label>
               </div>
             </div>
+            
+            <label for="anoInicio">Fecha Inicio del Proyecto</label>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <select id="anoInicio" name="anoInicio" class="form-control ano">
+                  <option value='' selected>Año</option>
+                </select>
+              </div>
+              
+              <div class="form-group col-md-4">
+                <select id="mesInicio" name="mesInicio" class="form-control mes">
+                  <option value='' selected>Mes</option>
+                </select>
+              </div>
 
-            Fecha Inicio
-            <br>
-            Fecha Fin
+              <div class="form-group col-md-4">
+                <select id="diaInicio" name="diaInicio" class="form-control dia">
+                  <option value='' selected>Día</option>
+                  <option value=0>Incierto</option>
+                </select>
+              </div>
+
+            </div>
+            
+
+            <label for="anoFin">Fecha Finalizacion del Proyecto</label>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <select id="anoFin" name="anoFin" class="form-control ano">
+                  <option value='' selected>Año</option>
+                </select>
+              </div>
+              
+              <div class="form-group col-md-4">
+                <select id="mesFin" name="mesFin" class="form-control mes">
+                  <option value='' selected>Mes</option>
+                </select>
+              </div>
+
+              <div class="form-group col-md-4">
+                <select id="diaFin" name="diaFin" class="form-control dia">
+                  <option value='' selected>Día</option>
+                  <option value=0>Incierto</option>
+                </select>
+              </div>
+
+            </div>
 
             <div class="form-group">
               <label for="objGeneral">Objetivo General</label>
