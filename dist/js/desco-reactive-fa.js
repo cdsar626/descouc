@@ -1,36 +1,6 @@
 $(document).ready(function() {
 
-  $('.form-control .select2').css({
-    'top': '30px'
-  })
 
-
-  let coords;
-  let data;
-  $.ajax({
-    url: '/getCoords',
-    method: 'get',
-  }).done(function(res) {
-    coords = res;
-    console.log(coords);
-    data = $.map(coords, function(obj) {
-      obj.id = obj.nick;
-      obj.text = `${obj.nombre} ${obj.apellido}`;
-      return obj;
-    })
-    data.unshift({
-      id: '',
-      text: 'Seleccione...',
-    })
-    console.log(data);
-    $('#selectCoordinador').select2({
-      data: data,
-      theme: 'bootstrap4',
-      language: 'es',
-    })
-  }).fail(function(err) {
-    console.error(err);
-  });
   
 // Coloca el nombre del archivo en el campo de inputFile cuando cambia
   $('#inputFile').change(function(e) {

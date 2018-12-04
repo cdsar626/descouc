@@ -30,40 +30,30 @@
         <div class="card-body">
           <form method="post" action="/register">
             <div class="form-group">
-              <div class="form-row">
-                <div class="col-md-6">
-                  <div class="form-label-group">
-                    <input type="text" id="firstName" class="form-control" placeholder="Nombre" required="required" autofocus="autofocus" name="nombre">
-                    <label for="firstName">Nombre</label>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-label-group">
-                    <input type="text" id="lastName" class="form-control" placeholder="Apellido" required="required" name="apellido">
-                    <label for="lastName">Apellido</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
               <div class="form-label-group">
-                <input type="email" id="inputEmail" class="form-control" placeholder="Dirección email" required="required" name="nick">
+                <input type="email" id="inputEmail" class="form-control" placeholder="Dirección email" required="required" name="email">
                 <label for="inputEmail">Dirección email</label>
               </div>
             </div>
             <div class="form-group">
-              <div class="form-row">
-                <div class="col-md-6">
                   <div class="form-label-group">
-                    <input type="password" id="inputPassword" class="form-control" placeholder="Contraseña" required="required" name="clave">
+                    <input type="password" id="inputPassword" class="form-control" placeholder="Contraseña" required="required" name="pass">
                     <label for="inputPassword">Contraseña</label>
                   </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-label-group">
-                    <input type="password" id="confirmPassword" class="form-control" placeholder="Confirma constrañea" required="required" name="reclave">
-                    <label for="confirmPassword">Confirma contraseña</label>
+            </div>
+            
+            <div class="form-group">
+              <div class="form-row">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text" for="selectRol">Rol</label>
                   </div>
+                  <select required name="rol" class="custom-select" id="selectRol">
+                    <option value='' selected disabled>Escoge...</option>
+                    <option value="1">Administrador</option>
+                    <option value="2">Desco</option>
+                    <option value="3">Facultad</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -71,18 +61,22 @@
               <div class="form-row">
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <label class="input-group-text" for="inputGroupSelect01">Rol</label>
+                    <label class="input-group-text" for="selectFacultad">Facultad</label>
                   </div>
-                  <select name="tipo" class="custom-select" id="inputGroupSelect01" required>
-                    <option >Escoge...</option>
-                    <option value="2">Coordinador</option>
-                    <option value="3">Extensión</option>
-                    <option value="4">Facultad</option>
-                    <option value="5">Servicio Comunitario</option>
+                  <select disabled name="facultad" class="custom-select" id="selectFacultad">
+                    <option value='' selected disabled>Escoge...</option>
+                    <option value="FCJP">Ciencias Jurídicas y Políticas (FCJP)</option>
+                    <option value="FCS">Ciencias de la Salud (FCS)</option>
+                    <option value="FaCES">Ciencias Económicas y Sociales (FaCES)</option>
+                    <option value="FaCE">Ciencias de la Educación (FaCE)</option>
+                    <option value="FaCyT">Experimental de Ciencia y Tecnología (FaCyT)</option>
+                    <option value="Ingenieria">Ingeniería</option>
+                    <option value="Odontologia">Odontología</option>
                   </select>
                 </div>
               </div>
             </div>
+            
             <input class="btn btn-primary btn-block" type="submit" value="Registrar">
           </form>
           <div class="text-center">
@@ -98,6 +92,13 @@
 
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script>
+      $('#selectRol').change(function() {
+        this.value != 3 ?
+        $('#selectFacultad').prop('disabled', true).val('').prop('required', false) :
+        $('#selectFacultad').prop('disabled', false).prop('required', true);
+      })
+    </script>
 
   </body>
 

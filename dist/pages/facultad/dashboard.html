@@ -134,31 +134,88 @@
           <h1>Insertar Proyecto DESCO</h1>
           <hr>
           <form method="post" action="/uploadProject" enctype="multipart/form-data">
+
             <div class="form-group">
                   <div class="form-label-group">
-                    <input type="text" id="inputName" class="form-control" placeholder="Nombre del Proyecto" required autofocus name="nombre">
-                    <label for="inputName">Nombre del Proyecto</label>
+                    <input type="text" id="nombreProyecto" class="form-control" placeholder="Nombre del Proyecto" required autofocus name="nombreProyecto">
+                    <label for="nombreProyecto">Nombre del Proyecto</label>
                   </div>
             </div>
+
+            <div class="form-group">
+              <div class="form-label-group">
+                <input type="text" id="orgResponsable" class="form-control" placeholder="Organización Responsable" required name="orgResponsable">
+                <label for="orgResponsable">Organización Responsable</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="inputResponsables">Responsables del proyecto</label>
+              <textarea class="form-control" id="responsables" name="responsables"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="ubicacionGeografica">Ubicación Geográfica</label>
+              <textarea class="form-control" id="ubicacionGeografica" name="ubicacionGeografica"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="beneficiariosDirectos">Beneficiarios Directos</label>
+              <textarea class="form-control" id="beneficiariosDirectos" name="beneficiariosDirectos"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label for="beneficiariosIndirectos">Beneficiarios Indirectos</label>
+              <textarea class="form-control" id="beneficiariosIndirectos" name="beneficiariosIndirectos"></textarea>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-group">
+                <input type="text" id="tipoProyecto" class="form-control" placeholder="Tipo de Proyecto" required name="tipoProyecto">
+                <label for="tipoProyecto">Tipo de Proyecto</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-group">
+                <input type="text" id="areaProyecto" class="form-control" placeholder="Area de atención del proyecto" required name="areaProyecto">
+                <label for="areaProyecto">Area de atención del proyecto</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-group">
+                <input type="text" id="duracionProyecto" class="form-control" placeholder="Duración del proyecto" required name="duracionProyecto">
+                <label for="duracionProyecto">Duración del proyecto</label>
+              </div>
+            </div>
+
+            Fecha Inicio
+            <br>
+            Fecha Fin
+
+            <div class="form-group">
+              <label for="objGeneral">Objetivo General</label>
+              <textarea class="form-control" id="objGeneral" name="objGeneral"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="objsEspecificos">Objetivos Específicos</label>
+              <textarea class="form-control" id="objsEspecificos" name="objsEspecificos"></textarea>
+            </div>
+
+
             <div class="form-group">
               <div class="form-row">
 
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <label class="input-group-text" for="selectTipoProyecto">Tipo de Proyecto</label>
+                    <label class="input-group-text" for="tipo">Tipo de Proyecto</label>
                   </div>
-                  <select required name="tipoProyecto" class="custom-select" id="selectTipoProyecto">
+                  <select required name="tipo" class="custom-select" id="tipo">
                     <option value="">Seleccione...</option>
                     <option value="1">de Servicio Comunitario</option>
                     <option value="2">de Extensión</option>
-                  </select>
-                </div>
-                
-                <div id="select2select" class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <label class="input-group-text" for="selectCoordinador">Coordinador</label>
-                  </div>
-                  <select required name="coordinadorProyecto" class="custom-select" id="selectCoordinador">
                   </select>
                 </div>
 

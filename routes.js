@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     // En el nombre del archivo se sustituyen los espacios por _ 
-    cb(null,`${ req.body.nombre.replace(/ /g, '_') }-${ Date.now() }.pdf`);
+    cb(null,`${ req.body.nombreProyecto.replace(/ /g, '_') }-${ Date.now() }.pdf`);
   }
 })
 
@@ -30,10 +30,8 @@ const asyncMiddleware = fn =>
 
 //rol: 
 //// 1: Admin
-//// 2: Coordinador
-//// 3: Extension
-//// 4: Facultad
-//// 5: SC
+//// 2: Desco
+//// 3: Facultad
 
 let users = [
   {
@@ -80,18 +78,14 @@ app.get('/dashboard', (req, res) => {
   if(req.session.rol == 1) {
     send(res, 'admin/dashboard.html');
   } else if(req.session.rol == 2) {
-    send(res, 'coordinador/dashboard.html');
+    send(res, 'desco/dashboard.html');
   } else if(req.session.rol == 3) {
-    send(res, 'extension/dashboard.html');
-  } else if(req.session.rol == 4) {
     send(res, 'facultad/dashboard.html');
-  } else if(req.session.rol == 5) {
-    send(res, 'sc/dashboard.html');
-  }else {
+  } else {
     forbid(res);
   }
 })
-
+// Ya no existe algo llamado coordinador
 app.get('/getCoords', (req, res) => {
   let data = users.filter(x => x.tipo == 2);
   if(req.session.rol == 4) {
@@ -101,14 +95,15 @@ app.get('/getCoords', (req, res) => {
   }
 })
 
-app.get('/getUsers', (req, res) => {
-  if(req.session.rol == 1) {
-    res.json({ data: users });
+app.get('/getUsers', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 1)) {
+    let data = await pool.query('SELECT * FROM usuarios');
+    res.json({ data });
     console.log('enviando usuarios');
   } else {
     forbid(res);
   }
-})
+}) );
 
 app.get('/login', (req, res) => {
   if(req.session.isPopulated) {
@@ -125,57 +120,84 @@ app.get('/logout', (req, res) => {
 
 app.get('/register', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {
+    console.log(await pool.query('INSERT INTO docs VALUES(0,?)', ['holi'] ));
     send(res, 'admin/register.html');
   } else {
     forbid(res);
   }
 }) );
 
-app.get('/success', (req, res) => {
-  if(req.session.rol == 4) {
+app.get('/success', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 3)) {
     send(res, 'facultad/success.html');
   } else {
     forbid(res);
   }
-})
+}) );
 
 // POST Requests ---------------------------------
 
 app.post('/login', asyncMiddleware( async(req, res) => {
   let user = await verificarUser(req);
-  console.log(user.nick);
+  console.log(user.email);
   if(user) { //valid user
-    req.session.user = user.nick;
-    req.session.rol = user.tipo;
-    console.log(req.session);
+    req.session.user = user.email;
+    req.session.rol = user.rol;
     res.redirect('/dashboard');
   } else {
     forbid(res);
   }
 }) );
 
-app.post('/editUser', (req, res) => {
-  if(req.session.rol === 1) {
-    console.log(req.body);
+app.post('/editUser', asyncMiddleware( async (req, res) => {
+  console.log(req.body);
+  if(await isValidSessionAndRol(req, 1)) {
+    await pool.query('UPDATE usuarios SET email=?, pass=SHA(?), rol=?, facultad=?  WHERE email = ?',
+    [req.body.email, req.body.pass, req.body.rol, req.body.facultad, req.body.email]);
     res.json({data: 'ok'});
   }
-})
+}) );
 
-app.post('/register', (req, res) => {
-  console.log(req.body);
-  if(req.session.rol === 1) {
-    users.push(req.body);
+app.post('/register', asyncMiddleware( async (req, res) => {
+  let user = req.body;
+  if(await isValidSessionAndRol(req, 1)) {
+    await pool.query('INSERT INTO usuarios VALUES (?,SHA(?),?,?)', [user.email, user.pass, user.rol, user.facultad]);
     res.redirect('/dashboard');
   } else {
     forbid(res);
   }
-});
+}) );
 
-app.post('/uploadProject', upload.single('inputFile'), (req, res) => {
+app.post('/uploadProject', upload.single('inputFile'),asyncMiddleware(async (req, res) => {
   console.log(req.body);
   console.log(req.file);
+  let proyData = [
+    req.body.nombreProyecto,
+    req.body.orgResponsable,
+    req.body.responsables,
+    req.body.ubicacionGeografica,
+    req.body.beneficiariosDirectos,
+    req.body.beneficiariosIndirectos,
+    req.body.tipoProyecto,
+    req.body.areaAtencion,
+    req.body.duracionProyecto,
+    //fecha inicio
+    //fechafin
+    req.body.objGeneral,
+    req.body.objsEspecificos,
+    req.body.tipo,
+    //status
+    //nota
+  ]
+  let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', proyData);
+  let docData = [
+    req.file.path,
+    req.file.filename,
+    qryRes.insertId
+  ]
+  await pool.query('INSERT INTO documentos VALUES(0,?,?,?)', docData);
   res.redirect('/success');
-})
+}) );
 
 // Else
 
@@ -191,19 +213,17 @@ function send(res, file) {
   res.sendFile(file, options);
 }
 
+// Verifica que el usuario y la clave coincidan
 async function verificarUser(req) {
   console.log(req.body);
-  let hashedPass = req.body.clave; 
-  // Se debe 
-  // hashear la clave
-  let resp = await pool.query('SELECT * FROM usuario WHERE nick = ? AND clave = ?', [req.body.nick,hashedPass]);
+  let resp = await pool.query('SELECT * FROM usuarios WHERE email = ? AND pass = SHA(?)', [req.body.email,req.body.pass]);
   return resp.length ? resp[0] : false;
 }
 
 // Verifica que el usuario y rol concuerden con la bd
 // y que sea el rol que se requiere (parametro rol)
 async function isValidSessionAndRol(req, rol) {
-  let resp = await pool.query('SELECT * FROM usuario WHERE nick = ? AND tipo = ?', [req.session.user,req.session.rol]);
+  let resp = await pool.query('SELECT * FROM usuarios WHERE email = ? AND rol = ?', [req.session.user,req.session.rol]);
   if (resp.length) {
     return req.session.rol == rol;
   } else {
