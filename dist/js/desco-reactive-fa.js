@@ -83,7 +83,12 @@ $(document).ready(function() {
 // Coloca el nombre del archivo en el campo de inputFile cuando cambia
   $('#inputFile').change(function(e) {
     let campoInputFile = document.getElementsByClassName('custom-file-label')[0];
-    campoInputFile.innerText = $('#inputFile').val().replace('C:\\fakepath\\','');
+    if(document.getElementById('inputFile').files.length > 1) {
+      campoInputFile.innerText = `${document.getElementById('inputFile').files.length} archivos seleccionados.`
+    } else {
+      campoInputFile.innerText = $('#inputFile').val().replace('C:\\fakepath\\','');
+    }
+
   })
 
   document.addEventListener('invalid', (function(){

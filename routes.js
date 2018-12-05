@@ -6,12 +6,18 @@ const app = express.Router();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // Elije la carpeta donde guardar segun el tipo de proyecto
-    let tipo = req.body.tipoProyecto == 1 ? 'ServicioComunitario/' : 'Extension/';
+    let tipo = req.body.tipo == 1 ? 'ServicioComunitario/' : 'Extension/';
     cb(null, 'proyectos/' + tipo);
   },
   filename: function (req, file, cb) {
+    console.log(file);
+    // Extraemos la extension del archivo
+    let ext = file.originalname.split('.');
+    ext = ext[ext.length - 1];
+    // En dado que el nombre del archivo tenga un timestamp como el usado aqui, se le quita el viejo stamp
+    let nombre = req.body.nombreProyecto.replace(/-[0-9]{13}/,'');
     // En el nombre del archivo se sustituyen los espacios por _ 
-    cb(null,`${ req.body.nombreProyecto.replace(/ /g, '_') }-${ Date.now() }.pdf`);
+    cb(null,`${ nombre.replace(/ /g, '_') }-${ Date.now() }.${ext}`);
   }
 })
 
@@ -33,45 +39,6 @@ const asyncMiddleware = fn =>
 //// 2: Desco
 //// 3: Facultad
 
-let users = [
-  {
-    nick: 'ad@gm.com',
-    tipo: 1,
-    clave: '',
-    nombre: 'DeAdmin',
-    apellido: 'Sudo Su',
-  },
-  {
-    nick: 'co@gm.com',
-    tipo: 2,
-    clave: '',
-    nombre: 'Coor',
-    apellido: 'Dina',
-  },
-  {
-    nick: 'ex@gm.com',
-    tipo: 3,
-    clave: '',
-    nombre: 'Ex',
-    apellido: 'Tension',
-  },
-  {
-    nick: 'fa@gm.com',
-    tipo: 4,
-    clave: '',
-    nombre: 'Facu',
-    apellido: 'Edad',
-  },
-  {
-    nick: 'sc@gm.com',
-    tipo: 5,
-    clave: '',
-    nombre: 'Servicio',
-    apellido: 'Comuna',
-  },
-  ]
-
-
 //GET Requests ------------------------------------
 
 app.get('/dashboard', (req, res) => {
@@ -85,21 +52,11 @@ app.get('/dashboard', (req, res) => {
     forbid(res);
   }
 })
-// Ya no existe algo llamado coordinador
-app.get('/getCoords', (req, res) => {
-  let data = users.filter(x => x.tipo == 2);
-  if(req.session.rol == 4) {
-    res.json(data);
-    console.log(`enviando coords:`);
-    console.log(data);
-  }
-})
 
 app.get('/getUsers', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {
     let data = await pool.query('SELECT * FROM usuarios');
     res.json({ data });
-    console.log('enviando usuarios');
   } else {
     forbid(res);
   }
@@ -138,11 +95,10 @@ app.get('/success', asyncMiddleware( async (req, res) => {
 
 app.post('/login', asyncMiddleware( async(req, res) => {
   let user = await verificarUser(req);
-  console.log('ey');
-  console.log(user.email);
   if(user) { //valid user
     req.session.user = user.email;
     req.session.rol = user.rol;
+    if(user.rol == 3) req.session.facultad = user.facultad;
     res.redirect('/dashboard');
   } else {
     forbid(res);
@@ -150,7 +106,6 @@ app.post('/login', asyncMiddleware( async(req, res) => {
 }) );
 
 app.post('/editUser', asyncMiddleware( async (req, res) => {
-  console.log(req.body);
   if(await isValidSessionAndRol(req, 1)) {
     if(req.body.pass == undefined) {
       await pool.query('UPDATE usuarios SET email=?, rol=?, facultad=?  WHERE email = ?',
@@ -160,12 +115,14 @@ app.post('/editUser', asyncMiddleware( async (req, res) => {
       [req.body.email, req.body.pass, req.body.rol, req.body.facultad, req.body.email]);
     }
     res.json({data: 'ok'});
+  } else {
+    forbid(res);
   }
 }) );
 
 app.post('/register', asyncMiddleware( async (req, res) => {
   let user = req.body;
-  if(await isValidSessionAndRol(req, 1)) {
+  if (await isValidSessionAndRol(req, 1)) {
     await pool.query('INSERT INTO usuarios VALUES (?,SHA(?),?,?)', [user.email, user.pass, user.rol, user.facultad]);
     res.redirect('/dashboard');
   } else {
@@ -173,43 +130,57 @@ app.post('/register', asyncMiddleware( async (req, res) => {
   }
 }) );
 
-app.post('/uploadProject', upload.single('inputFile'),asyncMiddleware(async (req, res) => {
+app.post('/uploadProject', upload.array('inputFile', 10),asyncMiddleware(async (req, res) => {
   console.log(req.body);
-  console.log(req.file);
-  let proyData = [
-    req.body.nombreProyecto,
-    req.body.orgResponsable,
-    req.body.responsables,
-    req.body.ubicacionGeografica,
-    req.body.beneficiariosDirectos,
-    req.body.beneficiariosIndirectos,
-    req.body.tipoProyecto,
-    req.body.areaAtencion,
-    req.body.duracionProyecto,
-    `${req.body.anoInicio}-${req.body.mesInicio}-${req.body.diaInicio}`,//fecha inicio
-    `${req.body.anoFin}-${req.body.mesFin}-${req.body.diaFin}`,//fechafin
-    req.body.objGeneral,
-    req.body.objsEspecificos,
-    req.body.tipo,
-    0,
-    /* status-----------------------
-    /* 0: propuesta
-    /* 1: a revisar
-    /* 2: rechazado por desco
-    /* 3: validado
-    /* 4: rechazado por consejo
-    /* 5: aprobado 
-    /* ------------------------- */
-    //nota
-  ]
-  let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)', proyData);
-  let docData = [
-    req.file.path,
-    req.file.filename,
-    qryRes.insertId
-  ]
-  await pool.query('INSERT INTO documentos VALUES(0,?,?,?)', docData);
-  res.redirect('/success');
+  console.log(req.files);
+  if (await isValidSessionAndRol(req,3)) {
+    let proyData = [
+      req.body.nombreProyecto,
+      req.body.orgResponsable,
+      req.body.responsables,
+      req.body.ubicacionGeografica,
+      req.body.beneficiariosDirectos,
+      req.body.beneficiariosIndirectos,
+      req.body.tipoProyecto,
+      req.body.areaAtencion,
+      req.body.duracionProyecto,
+      `${req.body.anoInicio}-${req.body.mesInicio}-${req.body.diaInicio}`,//fecha inicio
+      `${req.body.anoFin}-${req.body.mesFin}-${req.body.diaFin}`,//fechafin
+      req.body.objGeneral,
+      req.body.objsEspecificos,
+      req.body.tipo,
+      /* ^ tipo-------------------------
+      /* 1: Servicio Comunitario
+      /* 2: Extension
+      /* ------------------------------*/
+      1,
+      /* ^ status-----------------------
+      /* 1: propuesta
+      /* 2: a revisar
+      /* 3: rechazado por desco
+      /* 4: validado
+      /* 5: rechazado por consejo
+      /* 6: aprobado 
+      /* ------------------------- */
+      //nota
+    ]
+    let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)', proyData);
+    for(let i = 0; i < req.files.length; i++) {
+      let docData = [
+        qryRes.insertId,
+        req.files[i].path,
+        req.files[i].filename,
+        (new Date()).toISOString().split('T')[0], // Obtiene solo la fecha en formato yyyy-mm-dd
+      ];
+      console.log(docData);
+      await pool.query('INSERT INTO documentos VALUES(0,?,?,?,?,1)', docData);
+    }
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+
+
 }) );
 
 // Else
@@ -236,9 +207,14 @@ async function verificarUser(req) {
 // Verifica que el usuario y rol concuerden con la bd
 // y que sea el rol que se requiere (parametro rol)
 async function isValidSessionAndRol(req, rol) {
-  let resp = await pool.query('SELECT * FROM usuarios WHERE email = ? AND rol = ?', [req.session.user,req.session.rol]);
-  if (resp.length) {
-    return req.session.rol == rol;
+  console.log(req.session.isPopulated);
+  if(req.session.isPopulated){
+    let resp = await pool.query('SELECT * FROM usuarios WHERE email = ? AND rol = ?', [req.session.user,req.session.rol]);
+    if (resp.length) {
+      return req.session.rol == rol;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }
