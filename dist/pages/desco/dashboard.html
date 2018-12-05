@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>DESCO Extensión - Dashboard</title>
+    <title>DESCO - Dashboard</title>
 
     <!-- Bootstrap core CSS-->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -92,7 +92,7 @@
 
       <!-- Sidebar -->
       <ul class="sidebar navbar-nav">
-        <li class="nav-item">
+        <li class="nav-item active">
           <a class="nav-link" href="#">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
@@ -111,7 +111,7 @@
             <div class="dropdown-divider"></div>
             <h6 class="dropdown-header">Other Pages:</h6>
             <a class="dropdown-item" href="404.html">404 Page</a>
-            <a class="dropdown-item active" href="blank.html">Blank Page</a>
+            <a class="dropdown-item" href="blank.html">Blank Page</a>
           </div>
         </li>
       </ul>
@@ -122,36 +122,35 @@
 
           <!-- Breadcrumbs-->
           <ol class="breadcrumb">
-            <li class="breadcrumb-item active">
-              <!--a href="#">Dashboard</a-->
-              Dashboard - Extensión
-            </li>
+            <li class="breadcrumb-item active">Dashboard - DESCO</li>
           </ol>
-
-          <!-- Page Content -->
 
           <!-- DataTables Example -->
           <div class="card mb-3">
             <div class="card-header">
               <i class="fas fa-table"></i>
-              Lista de Proyecto Asociados</div>
+              Lista de proyectos</div>
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>Correo</th>
+                      <th>id</th>
                       <th>Nombre</th>
-                      <th>Apellido</th>
-                      <th>Rol</th>
+                      <th>Primer responsable</th>
+                      <th>Ubicación</th>
+                      <th>Tipo</th>
+                      <th>Estatus</th>
                     </tr>
                   </thead>
                   <tfoot>
                     <tr>
-                      <th>Correo</th>
+                      <th>id</th>
                       <th>Nombre</th>
-                      <th>Apellido</th>
-                      <th>Rol</th>
+                      <th>Primer responsable</th>
+                      <th>Ubicación</th>
+                      <th>Tipo</th>
+                      <th>Estatus</th>
                     </tr>
                   </tfoot>
                 </table>
@@ -204,6 +203,84 @@
       </div>
     </div>
 
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Editar Usuario</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="/editUser">
+
+              <div class="form-group">
+                <div class="form-row">
+
+                  <div class="col-md-6">
+                    <div class="form-label-group">
+                      <input type="password" id="inputPassword" class="form-control" placeholder="Contraseña" name="pass">
+                      <label for="inputPassword">Contraseña</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-label-group">
+                      <input type="password" id="confirmPassword" class="form-control" placeholder="Confirma constrañea" name="repass">
+                      <label for="confirmPassword">Confirma contraseña</label>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="form-row">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text" for="selectRol">Rol</label>
+                    </div>
+                    <select name="rol" class="custom-select" id="selectRol">
+                      <option value='' selected disabled>Escoge...</option>
+                      <option value="1" disabled>Administrador</option>
+                      <option value="2">Desco</option>
+                      <option value="3">Facultad</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="form-row">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text" for="selectFacultad">Facultad</label>
+                    </div>
+                    <select disabled name="facultad" class="custom-select" id="selectFacultad">
+                      <option value='' selected disabled>Escoge...</option>
+                      <option value="FCJP">Ciencias Jurídicas y Políticas (FCJP)</option>
+                      <option value="FCS">Ciencias de la Salud (FCS)</option>
+                      <option value="FaCES">Ciencias Económicas y Sociales (FaCES)</option>
+                      <option value="FaCE">Ciencias de la Educación (FaCE)</option>
+                      <option value="FaCyT">Experimental de Ciencia y Tecnología (FaCyT)</option>
+                      <option value="Ingenieria">Ingeniería</option>
+                      <option value="Odontologia">Odontología</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <input id="editButton" class="btn btn-primary btn-block" type="submit" value="Editar">
+            </form>
+          </div>
+          <div class="modal-footer">
+            <span id="errorHolder"></span>
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -215,7 +292,7 @@
     <script src="js/sb-admin.js"></script>
 
     <script src="js/datatables.min.js"></script>
-    <script src="js/desco-reactive-ad.js"></script>
+    <script src="js/desco-reactive-de.js"></script>
 
   </body>
 

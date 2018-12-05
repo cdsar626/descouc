@@ -62,6 +62,15 @@ app.get('/getUsers', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.get('/getProyectos', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2)) {
+    let data = await pool.query('SELECT * FROM proyectos');
+    res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/login', (req, res) => {
   if(req.session.isPopulated) {
     res.redirect('/dashboard');
