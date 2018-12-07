@@ -13,7 +13,7 @@ $(document).ready(function() {
         </tr>
         <tr>
           <td>Responsables:</td>
-          <td colspan="3">-${d.responsables.replace('\n','<br>-')}</td>
+          <td colspan="3">-${d.responsables.replace(/\n/g,'<br>-')}</td>
         </tr>
         <tr>
           <td>Ubicación geográfica:</td>
@@ -45,7 +45,7 @@ $(document).ready(function() {
         </tr>
         <tr>
           <td>Objetivos Específicos:</td>
-          <td colspan="3">-${d.objsEspecificos.replace('\n','<br>-')}</td>
+          <td colspan="3">-${d.objsEspecificos.replace(/\n/g,'<br>-')}</td>
         </tr>`+
           d.htmlFiles+
     '</table>'+

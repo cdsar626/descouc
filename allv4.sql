@@ -35,7 +35,7 @@ CREATE TABLE proyectos(
 -- 2: Extension
   status                  TINYINT UNSIGNED NOT NULL,
 -- 1: recibido
--- 2: a revisar
+-- 2: para revisar
 -- 3: rechazado por desco
 -- 4: validado
 -- 5: rechazado por consejo
@@ -48,8 +48,8 @@ CREATE TABLE proyectos(
 CREATE TABLE documentos(
   id                    INT UNSIGNED NOT NULL AUTO_INCREMENT,
   refProyecto           INT UNSIGNED NOT NULL,
-  ruta                  VARCHAR(180) NOT NULL,
-  nombreDoc             VARCHAR(150) NOT NULL,
+  ruta                  VARCHAR(380) NOT NULL,
+  nombreDoc             VARCHAR(350) NOT NULL,
   fechaSubida           DATE NOT NULL,
   tipo                  TINYINT UNSIGNED NOT NULL,
 -- 1: inicio,
