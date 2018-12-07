@@ -53,6 +53,18 @@ app.get('/dashboard', (req, res) => {
   }
 })
 
+
+
+app.get('/getDocsFromProject', asyncMiddleware( async (req, res) => {
+  if(Number.isSafeInteger(Number(req.query.id)) && await isValidSessionAndRol(req, 2)) {
+    console.log(req.query);
+    let data = await pool.query('SELECT ruta FROM documentos WHERE refProyecto=?',[req.query.id]);
+    res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/getUsers', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {
     let data = await pool.query('SELECT * FROM usuarios');
@@ -84,6 +96,11 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 })
 
+app.get('/proyectos/:tipo/:nombre', (req, res) => {
+  console.log(req.params);
+  res.sendFile(`${req.params.tipo}/${req.params.nombre}`, {root: __dirname + '/proyectos/'});
+})
+
 app.get('/register', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {
     send(res, 'admin/register.html');
@@ -113,6 +130,18 @@ app.post('/login', asyncMiddleware( async(req, res) => {
     forbid(res);
   }
 }) );
+
+app.post('/descoUpdate', asyncMiddleware( async (req, res) => {
+  console.log(req.body);
+  if (await isValidSessionAndRol(req, 2)) {
+    let nota = req.body.nota == ''? null : req.body.nota;
+    await pool.query('UPDATE proyectos SET nota=?, status=? WHERE id=?', [nota, req.body.status, req.body.id]);
+    res.redirect('/dashboard');
+  } else {
+    forbid(res);
+  }
+}) );
+
 
 app.post('/editUser', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {
@@ -216,7 +245,6 @@ async function verificarUser(req) {
 // Verifica que el usuario y rol concuerden con la bd
 // y que sea el rol que se requiere (parametro rol)
 async function isValidSessionAndRol(req, rol) {
-  console.log(req.session.isPopulated);
   if(req.session.isPopulated){
     let resp = await pool.query('SELECT * FROM usuarios WHERE email = ? AND rol = ?', [req.session.user,req.session.rol]);
     if (resp.length) {

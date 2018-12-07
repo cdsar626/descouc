@@ -34,7 +34,7 @@ CREATE TABLE proyectos(
 -- 1: Servicio Comunitario
 -- 2: Extension
   status                  TINYINT UNSIGNED NOT NULL,
--- 1: recibido
+-- 1: propuesta
 -- 2: a revisar
 -- 3: rechazado por desco
 -- 4: validado
