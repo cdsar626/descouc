@@ -31,16 +31,76 @@ CREATE TABLE proyectos(
   objGeneral              VARCHAR(300) NOT NULL,
   objsEspecificos         VARCHAR(1000) NOT NULL,
   tipo                    TINYINT UNSIGNED NOT NULL,
--- 1: Servicio Comunitario
--- 2: Extension
   status                  TINYINT UNSIGNED NOT NULL,
--- 1: recibido
--- 2: para revisar
--- 3: rechazado por desco
--- 4: validado
--- 5: rechazado por consejo
--- 6: aprobado
   nota                    VARCHAR(300),
+
+  PRIMARY KEY(id),
+);
+
+CREATE TABLE tutores(
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nombre     VARCHAR(50),
+  apellido   VARCHAR(50),
+  cedula     VARCHAR(20),
+  facultad   VARCHAR(100),
+  genero     VARCHAR(1),
+  nacimiento DATE NOT NULL,
+
+  PRIMARY KEY(id),
+  INDEX fk_tutore_id_idx (id DESC),
+  CONSTRAINT fk_tutores_id
+    FOREIGN KEY (id)
+    REFERENCES proyectos (id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+);
+
+CREATE TABLE estudiantes(
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nombre     VARCHAR(50),
+  apellido   VARCHAR(50),
+  cedula     VARCHAR(20),
+  facultad   VARCHAR(100),
+  genero     VARCHAR(1),
+-- F: Femenino,
+-- M: Masculino,
+  nacimiento DATE NOT NULL,
+
+  PRIMARY KEY(id),
+  INDEX fk_estudiantes_id_idx (id DESC),
+  CONSTRAINT fk_estudiantes_id
+    FOREIGN KEY (id)
+    REFERENCES proyectos (id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+);
+
+CREATE TABLE comunidad(
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nombre     VARCHAR(50),
+  apellido   VARCHAR(50),
+  cedula     VARCHAR(20),
+  sitio      VARCHAR(100),
+  genero     VARCHAR(1),
+-- F: Femenino,
+-- M: Masculino,
+  nacimiento DATE NOT NULL,
+
+  PRIMARY KEY(id),
+  INDEX fk_tutore_id_idx (id DESC),
+  CONSTRAINT fk_tutores_id
+    FOREIGN KEY (id)
+    REFERENCES proyectos (id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+);
+
+CREATE TABLE avances(
+  id  INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  numIncre INT UNSIGNED NOT NULL,
+  fecha DATE NOT NULL,
+  nota VARCHAR(500),
+  ultimo TINYINT DEFAULT 0,
 
   PRIMARY KEY(id)
 );
@@ -48,6 +108,7 @@ CREATE TABLE proyectos(
 CREATE TABLE documentos(
   id                    INT UNSIGNED NOT NULL AUTO_INCREMENT,
   refProyecto           INT UNSIGNED NOT NULL,
+  refAvance             INT UNSIGNED DEFAULT NULL,
   ruta                  VARCHAR(380) NOT NULL,
   nombreDoc             VARCHAR(350) NOT NULL,
   fechaSubida           DATE NOT NULL,
@@ -64,6 +125,12 @@ CREATE TABLE documentos(
     FOREIGN KEY (refProyecto)
     REFERENCES proyectos (id)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  INDEX fk_documentos_refAvance_idx (refAvance DESC),
+  CONSTRAINT fk_documentos_refAvance
+    FOREIGN KEY (refAvance)
+    REFERENCES avances (id)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
 -- Para acceder a la base de datos desde el cliente
@@ -74,4 +141,4 @@ GRANT ALL PRIVILEGES  ON interoperables.* TO 'desco'@'localhost';
 
 -- Para acceder al sistema se necesita minimo un usuario administrador
 -- Modificar a gusto (email,pass,rol,facultad)
-INSERT INTO usuarios VALUES('ad@gm.com',SHA('12'),1,NULL);
+INSERT INTO usuarios VALUES('admin@correo.com',SHA('cris0416'),1,NULL);
