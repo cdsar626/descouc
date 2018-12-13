@@ -46,7 +46,8 @@ $(document).ready(function() {
         <tr>
           <td>Objetivos Específicos:</td>
           <td colspan="3">-${d.objsEspecificos.replace(/\n/g,'<br>-')}</td>
-        </tr>`+
+        </tr>
+        <tr><th>Originales</th></tr>`+
           d.htmlFiles+
     '</table>'+
     `<form method="post" action="/descoUpdate">
@@ -93,6 +94,7 @@ $(document).ready(function() {
         data.tipo = 'Extensión';
       }
       switch(data.status) {
+        case 0: data.status = 'esperando correccion'; break;
         case 1: data.status = 'recibido'; break;
         case 2: data.status = 'para revisar'; break;
         case 3: data.status = 'rechazado por desco'; break;
@@ -108,6 +110,7 @@ $(document).ready(function() {
         $('td:eq(4)', row).html('Extensión');
       }
       switch(data.status) {
+        case 'esperando correccion': $('td:eq(5)', row).html('esperando correccion'); break;
         case 'recibido': $('td:eq(5)', row).html('recibido'); break;
         case 'para revisar': $('td:eq(5)', row).html('para revisar'); break;
         case 'rechazado por desco': $('td:eq(5)', row).html('rechazado por desco'); break;

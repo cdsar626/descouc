@@ -137,13 +137,153 @@
           </ol>
 
           <!-- Page Content -->
-          <h1>Operación Exitosa</h1>
+          <h1>Insertar Proyecto DESCO</h1>
           <hr>
-          <div style="text-align: center">
-            <a class="btn btn-primary" href="/dashboard">Volver al dashboard</a>
-            <a class="btn btn-primary" href="/enviarProyecto">Añadir otro proyecto</a>
-            <a class="btn btn-primary" href="/logout">Salir</a>
-          </div>
+          <form method="post" action="/uploadProject" enctype="multipart/form-data">
+
+            <div class="form-group">
+                  <div class="form-label-group">
+                    <input type="text" id="nombreProyecto" class="form-control" placeholder="Nombre del Proyecto" required autofocus name="nombreProyecto">
+                    <label for="nombreProyecto">Nombre del Proyecto</label>
+                  </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-group">
+                <input type="text" id="orgResponsable" class="form-control" placeholder="Organización Responsable" required name="orgResponsable">
+                <label for="orgResponsable">Organización Responsable</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="inputResponsables">Responsables del proyecto</label>
+              <textarea class="form-control" id="responsables" name="responsables"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="ubicacionGeografica">Ubicación Geográfica</label>
+              <textarea class="form-control" id="ubicacionGeografica" name="ubicacionGeografica"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="beneficiariosDirectos">Beneficiarios Directos</label>
+              <textarea class="form-control" id="beneficiariosDirectos" name="beneficiariosDirectos"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label for="beneficiariosIndirectos">Beneficiarios Indirectos</label>
+              <textarea class="form-control" id="beneficiariosIndirectos" name="beneficiariosIndirectos"></textarea>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-group">
+                <input type="text" id="tipoProyecto" class="form-control" placeholder="Tipo de Proyecto" required name="tipoProyecto">
+                <label for="tipoProyecto">Tipo de Proyecto</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-group">
+                <input type="text" id="areaAtencion" class="form-control" placeholder="Area de atención del proyecto" required name="areaAtencion">
+                <label for="areaAtencion">Area de atención del proyecto</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-group">
+                <input type="text" id="duracionProyecto" class="form-control" placeholder="Duración del proyecto" required name="duracionProyecto">
+                <label for="duracionProyecto">Duración del proyecto</label>
+              </div>
+            </div>
+            
+            <label for="anoInicio">Fecha Inicio del Proyecto</label>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <select id="anoInicio" name="anoInicio" class="form-control ano">
+                  <option value='' selected>Año</option>
+                </select>
+              </div>
+              
+              <div class="form-group col-md-4">
+                <select id="mesInicio" name="mesInicio" class="form-control mes">
+                  <option value='' selected>Mes</option>
+                </select>
+              </div>
+
+              <div class="form-group col-md-4">
+                <select id="diaInicio" name="diaInicio" class="form-control dia">
+                  <option value='' selected>Día</option>
+                  <option value=0>Incierto</option>
+                </select>
+              </div>
+
+            </div>
+            
+
+            <label for="anoFin">Fecha Finalizacion del Proyecto</label>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <select id="anoFin" name="anoFin" class="form-control ano">
+                  <option value='' selected>Año</option>
+                </select>
+              </div>
+              
+              <div class="form-group col-md-4">
+                <select id="mesFin" name="mesFin" class="form-control mes">
+                  <option value='' selected>Mes</option>
+                </select>
+              </div>
+
+              <div class="form-group col-md-4">
+                <select id="diaFin" name="diaFin" class="form-control dia">
+                  <option value='' selected>Día</option>
+                  <option value=0>Incierto</option>
+                </select>
+              </div>
+
+            </div>
+
+            <div class="form-group">
+              <label for="objGeneral">Objetivo General</label>
+              <textarea class="form-control" id="objGeneral" name="objGeneral"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="objsEspecificos">Objetivos Específicos</label>
+              <textarea class="form-control" id="objsEspecificos" name="objsEspecificos"></textarea>
+            </div>
+
+
+            <div class="form-group">
+              <div class="form-row">
+
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text" for="tipo">Tipo de Proyecto</label>
+                  </div>
+                  <select required name="tipo" class="custom-select" id="tipo">
+                    <option value="">Seleccione...</option>
+                    <option value="1">de Servicio Comunitario</option>
+                    <option value="2">de Extensión</option>
+                  </select>
+                </div>
+
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Proyecto</span>
+                  </div>
+                  <div class="custom-file">
+                    <input multiple required type="file" class="custom-file-input" name="inputFile" id="inputFile" accept=".pdf, .doc, .docx, .xlsx">
+                    <label class="custom-file-label" for="inputFile">Escoger Archivo PDF, Word, Excel</label>
+                  </div>
+                </div>
+
+              </div>
+              <span id="errorPlace"></span>
+            </div>
+            <input id="editButton" class="btn btn-primary btn-block" type="submit" value="Enviar">
+          </form>
+
         </div>
         <!-- /.container-fluid -->
 
@@ -195,6 +335,12 @@
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin.js"></script>
+
+    <script src="js/datatables.min.js"></script>
+    <script src="js/select2.min.js"></script>
+    <script src="js/i18n/es.js"></script>
+
+    <script src="js/desco-reactive-fa-enviar.js"></script>
 
   </body>
 

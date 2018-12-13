@@ -21,7 +21,19 @@ const storage = multer.diskStorage({
   }
 })
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5 // aka 1MB * 5
+  }
+  /*fileFilter: function(req, file, cb) {
+    if(req.session.rol == 2 || req.session.rol == 3) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  }*/
+});
 
 
 const options = {
@@ -53,12 +65,18 @@ app.get('/dashboard', (req, res) => {
   }
 })
 
-
+app.get('/enviarProyecto', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 3)) {
+    send(res, 'facultad/enviarProyecto.html');
+  } else {
+    forbid(res);
+  }
+}) );
 
 app.get('/getDocsFromProject', asyncMiddleware( async (req, res) => {
-  if(Number.isSafeInteger(Number(req.query.id)) && await isValidSessionAndRol(req, 2)) {
+  if(Number.isSafeInteger(Number(req.query.id)) && await isValidSessionAndRol(req, 2, 3)) {
     console.log(req.query);
-    let data = await pool.query('SELECT ruta FROM documentos WHERE refProyecto=?',[req.query.id]);
+    let data = await pool.query('SELECT ruta,tipo,numero FROM documentos WHERE refProyecto=?',[req.query.id]);
     res.json({ data });
   } else {
     forbid(res);
@@ -75,7 +93,7 @@ app.get('/getUsers', asyncMiddleware( async (req, res) => {
 }) );
 
 app.get('/getProyectos', asyncMiddleware( async (req, res) => {
-  if(await isValidSessionAndRol(req, 2)) {
+  if(await isValidSessionAndRol(req, 2, 3)) {
     let data = await pool.query('SELECT * FROM proyectos');
     res.json({ data });
   } else {
@@ -119,17 +137,38 @@ app.get('/success', asyncMiddleware( async (req, res) => {
 
 // POST Requests ---------------------------------
 
-app.post('/login', asyncMiddleware( async(req, res) => {
-  let user = await verificarUser(req);
-  if(user) { //valid user
-    req.session.user = user.email;
-    req.session.rol = user.rol;
-    if(user.rol == 3) req.session.facultad = user.facultad;
-    res.redirect('/dashboard');
+app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
+  if(await isValidSessionAndRol(req, 3)) { // Si es valida la sesion
+
+    await upload.any()(req, res, async function(err) { // Sube los archivos
+      if(err) {
+        return res.end('Error al subir archivos. Esto puede ocurrir si algun archivo es mayor a 5MB.');
+      } else {
+        console.log(req.files);
+        console.log(req.files[0].fieldname[9]);
+        for(let i = 0; i < req.files.length; i++) {
+          let nArchivo = req.files[i].fieldname[9];
+          let ruta = req.files[i].path;
+          console.log(ruta + '.i.' + nArchivo);
+          let data = [
+            ruta,
+            req.body.refProyecto,
+            nArchivo,
+          ]
+          await pool.query('UPDATE documentos SET ruta=?, fechaSubida=NOW() WHERE refProyecto=? && tipo=2 && numero=?', data);
+          await pool.query('UPDATE proyectos SET status=1 WHERE id=?',[req.body.refProyecto]);
+          console.log(req.body.refProyecto);
+        }
+        send(res, 'facultad/success.html');
+
+      }
+    });
+
+
   } else {
     forbid(res);
   }
-}) );
+}))
 
 app.post('/descoUpdate', asyncMiddleware( async (req, res) => {
   console.log(req.body);
@@ -153,6 +192,18 @@ app.post('/editUser', asyncMiddleware( async (req, res) => {
       [req.body.email, req.body.pass, req.body.rol, req.body.facultad, req.body.email]);
     }
     res.json({data: 'ok'});
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.post('/login', asyncMiddleware( async(req, res) => {
+  let user = await verificarUser(req);
+  if(user) { //valid user
+    req.session.user = user.email;
+    req.session.rol = user.rol;
+    if(user.rol == 3) req.session.facultad = user.facultad;
+    res.redirect('/dashboard');
   } else {
     forbid(res);
   }
@@ -193,8 +244,9 @@ app.post('/uploadProject', upload.array('inputFile', 10),asyncMiddleware(async (
       /* ------------------------------*/
       1,
       /* ^ status-----------------------
-      /* 1: propuesta
-      /* 2: a revisar
+      /* 0: esperando correccion
+      /* 1: recibido
+      /* 2: para revisar
       /* 3: rechazado por desco
       /* 4: validado
       /* 5: rechazado por consejo
@@ -205,13 +257,18 @@ app.post('/uploadProject', upload.array('inputFile', 10),asyncMiddleware(async (
     let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)', proyData);
     for(let i = 0; i < req.files.length; i++) {
       let docData = [
+        //id: 0: auto
         qryRes.insertId,
+        //refAvance: NULL
         req.files[i].path,
         req.files[i].filename,
         (new Date()).toISOString().split('T')[0], // Obtiene solo la fecha en formato yyyy-mm-dd
+        //tipo: inicio, actualizado, etc.
+        i+1,
       ];
       console.log(docData);
-      await pool.query('INSERT INTO documentos VALUES(0,?,?,?,?,1)', docData);
+      await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,?,1,?)', docData);
+      await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,?,2,?)', docData);
     }
     res.redirect('/success');
   } else {
@@ -249,6 +306,19 @@ async function isValidSessionAndRol(req, rol) {
     let resp = await pool.query('SELECT * FROM usuarios WHERE email = ? AND rol = ?', [req.session.user,req.session.rol]);
     if (resp.length) {
       return req.session.rol == rol;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
+async function isValidSessionAndRol(req, rol1, rol2) {
+  if(req.session.isPopulated){
+    let resp = await pool.query('SELECT * FROM usuarios WHERE email = ? AND rol = ?', [req.session.user,req.session.rol]);
+    if (resp.length) {
+      return (req.session.rol == rol1 || req.session.rol == rol2);
     } else {
       return false;
     }
