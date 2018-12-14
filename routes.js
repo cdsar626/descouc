@@ -10,7 +10,7 @@ const storage = multer.diskStorage({
     cb(null, 'proyectos/' + tipo);
   },
   filename: function (req, file, cb) {
-    console.log(file);
+    //console.log(file);
     // Extraemos la extension del archivo
     let ext = file.originalname.split('.');
     ext = ext[ext.length - 1];
@@ -128,8 +128,12 @@ app.get('/register', asyncMiddleware( async (req, res) => {
 }) );
 
 app.get('/success', asyncMiddleware( async (req, res) => {
-  if(await isValidSessionAndRol(req, 3)) {
-    send(res, 'facultad/success.html');
+  if(await isValidSessionAndRol(req, 3, 2)) {
+    if(req.session.rol == 3){
+      send(res, 'facultad/success.html');
+    } else {
+      send(res, 'desco/success.html');
+    }
   } else {
     forbid(res);
   }
@@ -159,7 +163,7 @@ app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
           await pool.query('UPDATE proyectos SET status=1 WHERE id=?',[req.body.refProyecto]);
           console.log(req.body.refProyecto);
         }
-        send(res, 'facultad/success.html');
+        res.redirect('/success');
 
       }
     });
@@ -214,6 +218,35 @@ app.post('/register', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 1)) {
     await pool.query('INSERT INTO usuarios VALUES (?,SHA(?),?,?)', [user.email, user.pass, user.rol, user.facultad]);
     res.redirect('/dashboard');
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.post('/subirAval', asyncMiddleware(async (req, res) =>{
+  if (await isValidSessionAndRol(req, 2)) {
+
+    await upload.any()(req, res, async function(err) { // Sube los archivos
+      if(err) {
+        return res.end('Error al subir archivos. Esto puede ocurrir si el archivo es mayor a 5MB.');
+      } else {
+        console.log(req.body);
+        console.log(req.files);
+        let dataDoc = [
+          //id
+          req.body.refProyecto,
+          //refAvance
+          req.files[0].path,
+          req.files[0].filename,
+          //fechaSubida
+          //tipo -> Aval -> 3
+          //numero -> 1
+        ];
+        await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,NOW(),3,1)', dataDoc);
+        res.redirect('/success');
+      }
+    });
+
   } else {
     forbid(res);
   }
