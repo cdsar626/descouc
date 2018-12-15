@@ -1,27 +1,27 @@
 $(document).ready(function() {
 
-    $('.fecha').text((new Date().toLocaleString()));
+  $('.fecha').text((new Date().toLocaleString()));
   
   let dataProyectos = []
   let user;
   let tabla = $('#dataTable').DataTable({
     ajax: '/getProyectos',
     columns: [
-    { data: 'id' },
-    { data: 'nombreProyecto' },
-    { data: 'responsables' },
-    { data: 'ubicacionGeografica' },
-    { data: 'tipo' },
-    { data: 'status' },
+      { data: 'id' },
+      { data: 'nombreProyecto' },
+      { data: 'responsables' },
+      { data: 'ubicacionGeografica' },
+      { data: 'tipo' },
+      { data: 'status' },
     ],
     order: [[0, 'desc']],
-    createdRow: function(row, data, dataIndex) {
+    createdRow: function (row, data, dataIndex) {
       if (data.tipo == 1) {
         data.tipo = 'Servicio Comunitario';
       } else if (data.tipo == 2) {
         data.tipo = 'Extensión';
       }
-      switch(data.status) {
+      switch (data.status) {
         case 0: data.status = 'esperando correccion'; break;
         case 1: data.status = 'recibido'; break;
         case 2: data.status = 'para revisar'; break;
@@ -31,13 +31,13 @@ $(document).ready(function() {
         case 6: data.status = 'aprobado'; break;
       }
     },
-    rowCallback: function(row, data) {
-      if (data.tipo == 'Servicio Comunitario'){
+    rowCallback: function (row, data) {
+      if (data.tipo == 'Servicio Comunitario') {
         $('td:eq(4)', row).html('Servicio Comunitario');
-      } else if (data.tipo == 'Extensión'){
+      } else if (data.tipo == 'Extensión') {
         $('td:eq(4)', row).html('Extensión');
       }
-      switch(data.status) {
+      switch (data.status) {
         case 'esperando correccion': $('td:eq(5)', row).html('esperando correccion'); break;
         case 'recibido': $('td:eq(5)', row).html('recibido'); break;
         case 'para revisar': $('td:eq(5)', row).html('para revisar'); break;
@@ -50,16 +50,16 @@ $(document).ready(function() {
     },
   });
 
-  tabla.on( 'xhr', function () {
+  tabla.on('xhr', function () {
     dataProyectos = tabla.ajax.json().data;
   });
-
 
   $('#dataTable tbody').on('click', 'tr', function () {
     let tr = $(this).closest('tr');
     let tdi = tr.find("i.fa");
     let row = tabla.row(tr);
     let rowData = row.data();
+
     $('#projectModal').addClass('isloading');
     $("#projectModal").modal('toggle');
     $('#projectModal').off('shown.bs.modal').on('shown.bs.modal', function () {
@@ -94,8 +94,8 @@ $(document).ready(function() {
       fields.benefI.innerText = rowData.beneficiariosIndirectos;
       fields.tipoP.innerText = rowData.tipoProyecto;
       fields.duracion.innerText = rowData.duracionProyecto;
-      fields.fechaI.innerText = rowData.fechaInicio;
-      fields.fechaF.innerText = rowData.fechaFin;
+      fields.fechaI.innerText = (new Date(rowData.fechaInicio)) == 'Invalid Date' ? rowData.fechaInicio.split('T')[0] : (new Date(rowData.fechaInicio)).toLocaleDateString();
+      fields.fechaF.innerText = (new Date(rowData.fechaFin)) == 'Invalid Date' ? rowData.fechaFin.split('T')[0] : (new Date(rowData.fechaFin)).toLocaleDateString();
       fields.objGen.innerText = rowData.objGeneral;
       fields.objsEsp.innerText = rowData.objsEspecificos;
       fields.addAvancesNombre.value = rowData.nombreProyecto;
@@ -105,43 +105,43 @@ $(document).ready(function() {
       // Para mostrar los documentos del proyecto
       $.ajax({
         method: 'get',
-        url: '/getDocsFromProject?id='+rowData.id,
-      }).done(function(res){
+        url: '/getDocsFromProject?id=' + rowData.id,
+      }).done(function (res) {
         $('#projectModal').removeClass('isloading');
         rowData.files = res.data;
         // Obtenemos cuantos tipos de documentos tiene el proyecto
         let nTipos = [];
-        for( let i = 0; i < res.data.length; i++) {
-          if(!nTipos.find(x => x == res.data[i].tipo)) nTipos.push(res.data[i].tipo);
+        for (let i = 0; i < res.data.length; i++) {
+          if (!nTipos.find(x => x == res.data[i].tipo)) nTipos.push(res.data[i].tipo);
         };
         nTipos.sort();
         //Se obtiene un arreglo donde cada indice tiene todos los documentos de un mismo tipo
         let filesByTipo = [];
         let cabeceraHtml = '';
-        for( let i = 0; i < nTipos.length; i++) {
+        for (let i = 0; i < nTipos.length; i++) {
           let cabecera = '';
-          switch(nTipos[i]){
+          switch (nTipos[i]) {
             case 1: cabecera = 'Originales'; break;
             case 2: cabecera = 'Actualizados'; break;
             case 3: cabecera = 'Aval'; break;
             case 4: cabecera = 'Avances'; break;
             case 5: cabecera = 'Final'; break;
           };
-          if(cabecera != 'Avances') cabeceraHtml = cabeceraHtml + `<th>${cabecera}</th>`;
+          if (cabecera != 'Avances') cabeceraHtml = cabeceraHtml + `<th>${cabecera}</th>`;
           filesByTipo.push(res.data.filter(x => x.tipo == nTipos[i]));
         }
         fields.filesHeads.innerHTML = cabeceraHtml;
         // Obtenemos el maximo doc.numero 
         let maxNumero = Math.max.apply(Math, res.data.map(x => x.numero));
         let htmlFiles = '';
-        for(let k = 0; k < maxNumero; k++) {
+        for (let k = 0; k < maxNumero; k++) {
           htmlFiles = htmlFiles + `<tr>`;
           for (let i = 0; i < filesByTipo.length; i++) {
-            filesByTipo[i].sort((a,b) => a.numero - b.numero);
+            filesByTipo[i].sort((a, b) => a.numero - b.numero);
             if(filesByTipo[i][0].tipo != 4){
-              if (filesByTipo[i][k]){
-                  htmlFiles = htmlFiles +
-                  `<td><a target="_blank" href="${filesByTipo[i][k].ruta}">Archivo ${filesByTipo[i][k].numero}</a></td>`;
+              if (filesByTipo[i][k]) {
+                htmlFiles = htmlFiles +
+                `<td><a target="_blank" href="${filesByTipo[i][k].ruta}">Archivo ${filesByTipo[i][k].numero}</a></td>`;
               } else {
                 htmlFiles = htmlFiles +
                 `<td> ------- </td>`;
@@ -238,8 +238,8 @@ $(document).ready(function() {
         let addParticipantesModal = $('#addParticipantesModal');
         let avancesModal = $('#avancesModal');
 
-        let avancesHtml = '';
         avancesModal.off('show.bs.modal').on('show.bs.modal', function() {
+          let avancesHtml = '';
           console.log(this);
           $('#avancesModalTitle').text(rowData.nombreProyecto);
           $.ajax({
@@ -250,8 +250,9 @@ $(document).ready(function() {
             for(let i = 0; i < res.data.length; i++) {
               console.log(res.data[i]);
               avancesHtml = avancesHtml + `
+                <h6>Avance ${i+1} <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
                 <div>
-                  ${res.data[i].fecha}
+                  
                 </div>
                 <div>
                   ${res.data[i].nota}
@@ -260,14 +261,14 @@ $(document).ready(function() {
               let docsFromiAvance = filesByTipo[3].filter(x => x.refAvance == i+1);
               for(let j = 0; j < docsFromiAvance.length; j++) {
                 avancesHtml = avancesHtml + `
-                  <a href="${docsFromiAvance[j].ruta}">Archivo ${j+1}</a>
+                  <a target="_blank" href="${docsFromiAvance[j].ruta}">Archivo ${j+1}</a>
                 `
               }
               avancesHtml += '<hr>';
             }
             document.getElementById('avancesModalBody').innerHTML = avancesHtml;
           });
-        });
+        }); // fin evento aparicion avances modal
         
         addParticipantesModal.off('show.bs.modal').on('show.bs.modal', function() {
           console.log(rowData);

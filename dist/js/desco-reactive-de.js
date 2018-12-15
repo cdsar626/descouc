@@ -1,73 +1,7 @@
 $(document).ready(function () {
+
   $('.fecha').text((new Date().toLocaleString()));
-  function format(d) {
-    // `d` is the original data object for the row
-    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; margin:auto">' +
-      `<tr>
-          <td>Nombre:</td>
-          <td colspan="3">${d.nombreProyecto}</td>
-        </tr>
-        <tr>
-          <td>Organización Responsable:</td>
-          <td colspan="3">${d.orgResponsable}</td>
-        </tr>
-        <tr>
-          <td>Responsables:</td>
-          <td colspan="3">-${d.responsables.replace(/\n/g, '<br>-')}</td>
-        </tr>
-        <tr>
-          <td>Ubicación geográfica:</td>
-          <td colspan="3">${d.ubicacionGeografica}</td>
-        </tr>
-        <tr>
-          <td>Beneficiarios directos:</td>
-          <td colspan="3">${d.beneficiariosDirectos}</td>
-        </tr>
-        <tr>
-          <td>Beneficiarios indirectos:</td>
-          <td colspan="3">${d.beneficiariosIndirectos}</td>
-        </tr>
-        <tr>
-          <td>Tipo de Proyecto:</td>
-          <td>${d.tipoProyecto}</td>
-          <td>Duración del proyecto:</td>
-          <td>${d.duracionProyecto}</td>
-        </tr>
-        <tr>
-          <td>Fecha de inicio:</td>
-          <td>${d.fechaInicio.split('T')[0]}</td>
-          <td>Fecha de fin:</td>
-          <td>${d.fechaFin.split('T')[0]}</td>
-        </tr>
-        <tr>
-          <td>Objetivo general:</td>
-          <td colspan="3">${d.objGeneral}</td>
-        </tr>
-        <tr>
-          <td>Objetivos Específicos:</td>
-          <td colspan="3">-${d.objsEspecificos.replace(/\n/g, '<br>-')}</td>
-        </tr>
-        <tr><th>Originales</th></tr>`+
-      d.htmlFiles +
-      '</table>' +
-      `<form method="post" action="/descoUpdate">
-    <input class="d-none" name="id" value="${d.id}"></id>
-    <div class="form-group descoDetails">
-      <label for="nota">Nota  para el usuario que subió el proyecto</label>
-      <textarea class="form-control descoDetails" id="nota" name="nota">${d.nota ? d.nota : ''}</textarea>
-    </div>
-    <br>
-    <div class="input-group mb-3 descoDetails">
-      <div class="input-group-prepend">
-        <label class="input-group-text" for="status">Estatus</label>
-      </div>
-      <select required name="status" class="custom-select" id="status">
-        ${d.htmlSelect}
-      </select>
-    </div>
-    <input class="btn btn-primary btn-block descoDetails" type="submit" value="Actualizar">
-  </form>`
-  }
+
   let dataProyectos = []
   let user;
   let tabla = $('#dataTable').DataTable({
@@ -157,8 +91,8 @@ $(document).ready(function () {
       fields.benefI.innerText = rowData.beneficiariosIndirectos;
       fields.tipoP.innerText = rowData.tipoProyecto;
       fields.duracion.innerText = rowData.duracionProyecto;
-      fields.fechaI.innerText = rowData.fechaInicio;
-      fields.fechaF.innerText = rowData.fechaFin;
+      fields.fechaI.innerText = (new Date(rowData.fechaInicio)) == 'Invalid Date' ? rowData.fechaInicio.split('T')[0] : (new Date(rowData.fechaInicio)).toLocaleDateString();
+      fields.fechaF.innerText = (new Date(rowData.fechaFin)) == 'Invalid Date' ? rowData.fechaFin.split('T')[0] : (new Date(rowData.fechaFin)).toLocaleDateString();
       fields.objGen.innerText = rowData.objGeneral;
       fields.objsEsp.innerText = rowData.objsEspecificos;
 
@@ -179,15 +113,15 @@ $(document).ready(function () {
         let filesByTipo = [];
         let cabeceraHtml = '';
         for (let i = 0; i < nTipos.length; i++) {
-          let cabezera = '';
+          let cabecera = '';
           switch (nTipos[i]) {
-            case 1: cabezera = 'Originales'; break;
-            case 2: cabezera = 'Actualizados'; break;
-            case 3: cabezera = 'Aval'; break;
-            case 4: cabezera = 'Avances'; break;
-            case 5: cabezera = 'Final'; break;
+            case 1: cabecera = 'Originales'; break;
+            case 2: cabecera = 'Actualizados'; break;
+            case 3: cabecera = 'Aval'; break;
+            case 4: cabecera = 'Avances'; break;
+            case 5: cabecera = 'Final'; break;
           };
-          cabeceraHtml = cabeceraHtml + `<th>${cabezera}</th>`;
+          if (cabecera != 'Avances') cabeceraHtml = cabeceraHtml + `<th>${cabecera}</th>`;
           filesByTipo.push(res.data.filter(x => x.tipo == nTipos[i]));
         }
         fields.filesHeads.innerHTML = cabeceraHtml;
@@ -198,17 +132,21 @@ $(document).ready(function () {
           htmlFiles = htmlFiles + `<tr>`;
           for (let i = 0; i < filesByTipo.length; i++) {
             filesByTipo[i].sort((a, b) => a.numero - b.numero);
-            if (filesByTipo[i][k]) {
-              htmlFiles = htmlFiles +
+            if(filesByTipo[i][0].tipo != 4){
+              if (filesByTipo[i][k]) {
+                htmlFiles = htmlFiles +
                 `<td><a target="_blank" href="${filesByTipo[i][k].ruta}">Archivo ${filesByTipo[i][k].numero}</a></td>`;
-            } else {
-              htmlFiles = htmlFiles +
+              } else {
+                htmlFiles = htmlFiles +
                 `<td> ------- </td>`;
+              }
             }
           }
           htmlFiles = htmlFiles + `</tr>`;
         }
         fields.files.innerHTML = htmlFiles;
+
+        // PAra mostrar el select de estatus si aun no está aprobado
         let selectHtml = `
         <div class="input-group mb-3 descoDetails">
           <div class="input-group-prepend">
@@ -307,6 +245,41 @@ $(document).ready(function () {
             });
           });
         } // fin if(aprobado)
+
+        // Definicion del comportamiento al abrir los diferentes modales
+        let avancesModal = $('#avancesModal');
+
+        avancesModal.off('show.bs.modal').on('show.bs.modal', function() {
+          let avancesHtml = '';
+          console.log(this);
+          $('#avancesModalTitle').text(rowData.nombreProyecto);
+          $.ajax({
+            method:'get',
+            url: '/getAvancesFromProject?id=' + rowData.id,
+          }).done(function(res){
+            console.log(res);
+            for(let i = 0; i < res.data.length; i++) {
+              console.log(res.data[i]);
+              avancesHtml = avancesHtml + `
+                <h6>Avance ${i+1} <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
+                <div>
+                  
+                </div>
+                <div>
+                  ${res.data[i].nota}
+                </div>
+              `
+              let docsFromiAvance = filesByTipo[3].filter(x => x.refAvance == i+1);
+              for(let j = 0; j < docsFromiAvance.length; j++) {
+                avancesHtml = avancesHtml + `
+                  <a target="_blank" href="${docsFromiAvance[j].ruta}">Archivo ${j+1}</a>
+                `
+              }
+              avancesHtml += '<hr>';
+            }
+            document.getElementById('avancesModalBody').innerHTML = avancesHtml;
+          });
+        }); // fin evento aparicion avances modal
 
 
         //colorear en rojo la tabla de estatus
