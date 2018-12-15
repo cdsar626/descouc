@@ -81,6 +81,9 @@ $(document).ready(function() {
       fields.filesHeads = document.getElementById('projectModalFilesHeads');
       fields.files = document.getElementById('tableProjectFiles');
       fields.pluses = document.getElementById('projectModalPluses');
+      fields.addAvancesNombre = document.getElementById('addAvancesNombreProyecto');
+      fields.addAvancesTipo = document.getElementById('addAvancesTipo');
+      fields.addAvancesRef = document.getElementById('addAvancesRefProyecto');
 
       fields.id.innerText = 'Proyecto id: ' + rowData.id;
       fields.nombre.innerText = rowData.nombreProyecto;
@@ -95,6 +98,9 @@ $(document).ready(function() {
       fields.fechaF.innerText = rowData.fechaFin;
       fields.objGen.innerText = rowData.objGeneral;
       fields.objsEsp.innerText = rowData.objsEspecificos;
+      fields.addAvancesNombre.value = rowData.nombreProyecto;
+      fields.addAvancesTipo.value = tipo2Num(rowData.tipo);
+      fields.addAvancesRef.value = rowData.id;
 
       // Para mostrar los documentos del proyecto
       $.ajax({
@@ -113,15 +119,15 @@ $(document).ready(function() {
         let filesByTipo = [];
         let cabeceraHtml = '';
         for( let i = 0; i < nTipos.length; i++) {
-          let cabezera = '';
+          let cabecera = '';
           switch(nTipos[i]){
-            case 1: cabezera = 'Originales'; break;
-            case 2: cabezera = 'Actualizados'; break;
-            case 3: cabezera = 'Aval'; break;
-            case 4: cabezera = 'Avances'; break;
-            case 5: cabezera = 'Final'; break;
+            case 1: cabecera = 'Originales'; break;
+            case 2: cabecera = 'Actualizados'; break;
+            case 3: cabecera = 'Aval'; break;
+            case 4: cabecera = 'Avances'; break;
+            case 5: cabecera = 'Final'; break;
           };
-          cabeceraHtml = cabeceraHtml + `<th>${cabezera}</th>`;
+          if(cabecera != 'Avances') cabeceraHtml = cabeceraHtml + `<th>${cabecera}</th>`;
           filesByTipo.push(res.data.filter(x => x.tipo == nTipos[i]));
         }
         fields.filesHeads.innerHTML = cabeceraHtml;
@@ -132,12 +138,14 @@ $(document).ready(function() {
           htmlFiles = htmlFiles + `<tr>`;
           for (let i = 0; i < filesByTipo.length; i++) {
             filesByTipo[i].sort((a,b) => a.numero - b.numero);
-            if (filesByTipo[i][k]){
-              htmlFiles = htmlFiles +
-              `<td><a target="_blank" href="${filesByTipo[i][k].ruta}">Archivo ${filesByTipo[i][k].numero}</a></td>`;
-            } else {
-              htmlFiles = htmlFiles +
-              `<td> ------- </td>`;
+            if(filesByTipo[i][0].tipo != 4){
+              if (filesByTipo[i][k]){
+                  htmlFiles = htmlFiles +
+                  `<td><a target="_blank" href="${filesByTipo[i][k].ruta}">Archivo ${filesByTipo[i][k].numero}</a></td>`;
+              } else {
+                htmlFiles = htmlFiles +
+                `<td> ------- </td>`;
+              }
             }
           }
           htmlFiles = htmlFiles + `</tr>`;
@@ -225,12 +233,57 @@ $(document).ready(function() {
           });
         } // fin if(aprobado)
 
+        // Definicion del comportamiento al abrir los diferentes modales
+        let addAvancesModal = $('#addAvancesModal');
+        let addParticipantesModal = $('#addParticipantesModal');
+        let avancesModal = $('#avancesModal');
+
+        let avancesHtml = '';
+        avancesModal.off('show.bs.modal').on('show.bs.modal', function() {
+          console.log(this);
+          $('#avancesModalTitle').text(rowData.nombreProyecto);
+          $.ajax({
+            method:'get',
+            url: '/getAvancesFromProject?id=' + rowData.id,
+          }).done(function(res){
+            console.log(res);
+            for(let i = 0; i < res.data.length; i++) {
+              console.log(res.data[i]);
+              avancesHtml = avancesHtml + `
+                <div>
+                  ${res.data[i].fecha}
+                </div>
+                <div>
+                  ${res.data[i].nota}
+                </div>
+              `
+              let docsFromiAvance = filesByTipo[3].filter(x => x.refAvance == i+1);
+              for(let j = 0; j < docsFromiAvance.length; j++) {
+                avancesHtml = avancesHtml + `
+                  <a href="${docsFromiAvance[j].ruta}">Archivo ${j+1}</a>
+                `
+              }
+              avancesHtml += '<hr>';
+            }
+            document.getElementById('avancesModalBody').innerHTML = avancesHtml;
+          });
+        });
+        
+        addParticipantesModal.off('show.bs.modal').on('show.bs.modal', function() {
+          console.log(rowData);
+          $('#addParticipantesModalTitle').text(rowData.nombreProyecto);
+        })
+        
+        addAvancesModal.off('show.bs.modal').on('show.bs.modal', function() {
+          console.log(this);
+          $('#addAvancesModalTitle').text(rowData.nombreProyecto);
+        })
         //colorear en rojo la tabla de estatus
         if(status2Num(rowData.status) == 0) $('#projectPluses').addClass('atention');
-
+        //Si se cambia el archivo al estar en el estatus "esperando correccion"
         $('.custom-file-input').change(function(e) {
           let campoInputFile = document.getElementById(this.id + 'Label');
-          campoInputFile.innerText = $('#' + this.id).val().replace('C:\\fakepath\\','');
+          if (campoInputFile) campoInputFile.innerText = $('#' + this.id).val().replace('C:\\fakepath\\','');
         })
 
       });// fin ajax proyectos
@@ -238,6 +291,67 @@ $(document).ready(function() {
     });// fin evento shown modal proyecto
 
   });//fin evento click table
+
+
+  // Empieza tratamiento de formulario de fecha
+  let currDate = new Date();
+  let months = [
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre',
+  ]
+  
+  // Set años
+  for(let i = currDate.getFullYear() - 10; i <= currDate.getFullYear(); i++) {
+    let opt = document.createElement('option');
+
+    opt.value = i;
+    opt.text = i;
+    if (i == currDate.getFullYear()) {
+      opt.setAttribute('selected','selected');
+    }
+    document.getElementById('anoInicio').appendChild(opt);
+
+  }
+
+  // Set meses
+  for (let i = 0; i < 12; i++){
+    let opt = document.createElement('option');
+    opt.value = i + 1;
+    opt.text = months[i];
+    document.getElementById('mesInicio').appendChild(opt);
+  }
+  
+  //Set dias inicio
+  $('#mesInicio').change( function() {
+    let diasSelect = document.getElementById('diaInicio');
+    diasSelect.innerHTML = '';
+    for(let i = 0; i < diasEn(this.value); i++) {
+      let opt = document.createElement('option');
+      opt.value = i + 1;
+      opt.text = i + 1;
+      document.getElementById('diaInicio').appendChild(opt);
+    }
+  })
+
+  function diasEn(mes) {
+    switch(Number(mes)){
+      case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+        return 31;
+      case 4: case 6: case 9: case 11:
+        return 30;
+      case 2: return 28;
+    }
+  }
 
   function status2Num(status) {
     switch(status) {
@@ -270,8 +384,22 @@ $(document).ready(function() {
     }
   }
  
+  $('textarea').each(function () {
+    this.setAttribute('style', 'height:60px;overflow-y:hidden;');
+  }).on('input', function () {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+  });
 
+  $('#inputFile').change(function(e) {
+    let campoInputFile = document.getElementsByClassName('custom-file-label')[0];
+    if(document.getElementById('inputFile').files.length > 1) {
+      campoInputFile.innerText = `${document.getElementById('inputFile').files.length} archivos seleccionados.`
+    } else {
+      campoInputFile.innerText = $('#inputFile').val().replace('C:\\fakepath\\','');
+    }
 
+  })
 
 
 });

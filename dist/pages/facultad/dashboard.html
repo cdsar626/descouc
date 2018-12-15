@@ -234,7 +234,10 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="participantesModalLabel">Participantes</h5>
+            <div class="modal-title" id="participantesModalLabel">
+              <h5>Participantes</h5>
+              <h6 id="participantesModalTitle"></h6>
+            </div>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">×</span>
             </button>
@@ -253,7 +256,10 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addParticipantesModalLabel">Añadir participantes</h5>
+            <div class="modal-title" id="addParticipantesModalLabel">
+              <h5>Añadir Participantes</h5>
+              <h6 id="addParticipantesModalTitle"></h6>
+            </div>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">×</span>
             </button>
@@ -272,16 +278,63 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addAvancesModalLabel">Añadir Avances</h5>
+            <div class="modal-title" id="addAvancesModalLabel">
+              <h5>Añadir Avances</h5>
+              <h6 id="addAvancesModalTitle"></h6>
+            </div>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <div class="modal-body">Seleccione "Salir" si está listo para terminar la sesión.</div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-            <a class="btn btn-primary" href="/logout">Salir</a>
-          </div>
+          
+          <form method="POST" action="/subirAvance" enctype="multipart/form-data">
+            <div class="modal-body">
+              <input id="addAvancesNombreProyecto" class="d-none" name="nombreProyecto"/>
+              <input id="addAvancesTipo" class="d-none" name="tipo"/>
+              <input id="addAvancesRefProyecto" class="d-none" name="refProyecto"/>
+
+              <label for="anoInicio">Fecha de culminación del avance</label>
+              <div class="form-row">
+                
+                <div class="form-group col-md-4">
+                  <select required id="anoInicio" name="anoInicio" class="form-control ano">
+                    <option value='' selected>Año</option>
+                  </select>
+                </div>
+                
+                <div class="form-group col-md-4">
+                  <select required id="mesInicio" name="mesInicio" class="form-control mes">
+                    <option value='' selected>Mes</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-md-4">
+                  <select required id="diaInicio" name="diaInicio" class="form-control dia">
+                    <option value='' selected>Día</option>
+                  </select>
+                </div>
+                
+              </div>
+              <label for="notaAvance">Notas sobre el avance</label>
+              <textarea id="notaAvance" name="notaAvance" class="form-control"></textarea>
+            </div>
+
+            <div class="input-group" style="width: auto; margin: 1em;">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Proyecto</span>
+              </div>
+              <div class="custom-file">
+                <input multiple required type="file" class="custom-file-input" name="inputFile" id="inputFile" accept=".pdf, .doc, .docx, .xlsx">
+                <label class="custom-file-label" for="inputFile">Escoger Archivo PDF, Word, Excel</label>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+              <input type="submit" class="btn btn-primary" value="Enviar">
+            </div>
+
+          </form>
         </div>
       </div>
     </div>
@@ -291,12 +344,15 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="avancesModalLabel">Avances</h5>
+            <div class="modal-title" id="AvancesModalLabel">
+              <h5>Avances</h5>
+              <h6 id="avancesModalTitle"></h6>
+            </div>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <div class="modal-body">Seleccione "Salir" si está listo para terminar la sesión.</div>
+          <div class="modal-body" id="avancesModalBody"></div>
           <div class="modal-footer">
             <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
             <a class="btn btn-primary" href="/logout">Salir</a>

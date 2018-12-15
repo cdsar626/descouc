@@ -73,10 +73,18 @@ app.get('/enviarProyecto', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.get('/getAvancesFromProject', asyncMiddleware( async (req, res) => {
+  if(Number.isSafeInteger(Number(req.query.id)) && await isValidSessionAndRol(req, 2, 3)) {
+    let data = await pool.query('SELECT * FROM avances WHERE refProyecto=?',[req.query.id]);
+    res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/getDocsFromProject', asyncMiddleware( async (req, res) => {
   if(Number.isSafeInteger(Number(req.query.id)) && await isValidSessionAndRol(req, 2, 3)) {
-    console.log(req.query);
-    let data = await pool.query('SELECT ruta,tipo,numero FROM documentos WHERE refProyecto=?',[req.query.id]);
+    let data = await pool.query('SELECT ruta,tipo,numero,refAvance FROM documentos WHERE refProyecto=?',[req.query.id]);
     res.json({ data });
   } else {
     forbid(res);
@@ -151,9 +159,9 @@ app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
         console.log(req.files);
         console.log(req.files[0].fieldname[9]);
         for(let i = 0; i < req.files.length; i++) {
+          //obtiene el numero de archivo
           let nArchivo = req.files[i].fieldname[9];
           let ruta = req.files[i].path;
-          console.log(ruta + '.i.' + nArchivo);
           let data = [
             ruta,
             req.body.refProyecto,
@@ -252,6 +260,51 @@ app.post('/subirAval', asyncMiddleware(async (req, res) =>{
   }
 }) );
 
+app.post('/subirAvance', asyncMiddleware(async (req, res) => {
+  if(await isValidSessionAndRol(req, 3)) { // Si es valida la sesion
+
+    await upload.array('inputFile',10)(req, res, async function(err) { // Sube los archivos
+      if(err) {
+        return res.end('Error al subir archivos. Esto puede ocurrir si algun archivo es mayor a 5MB.');
+      } else {
+        console.log(req.files);
+        console.log(req.body);
+        let numerosAvance = await pool.query('SELECT numero FROM avances WHERE refProyecto=?', [req.body.refProyecto]);
+        let lastAvance = Math.max.apply(Math, numerosAvance.map(x => x.numero));
+        lastAvance < 0 ? lastAvance = 0 : '';
+        let avanceData = [
+          // id
+          req.body.refProyecto,
+          lastAvance + 1,
+          `${req.body.anoInicio}-${req.body.mesInicio}-${req.body.diaInicio}`,
+          req.body.notaAvance,
+        ]
+        let qryRes = await pool.query('INSERT INTO avances VALUES(0,?,?,?,?)', avanceData);
+        await pool.query('UPDATE proyectos SET avances=avances+1 WHERE id=?', [req.body.refProyecto]);
+
+        for(let i = 0; i < req.files.length; i++) {
+          let docData = [
+            // id
+            req.body.refProyecto,
+            qryRes.insertId,
+            req.files[i].path,
+            req.files[i].filename,
+            // Fecha subida
+            // tipo -> 4: avances
+            i+1 // numero
+          ]
+          await pool.query('INSERT INTO documentos VALUES(0,?,?,?,?,NOW(),4,?)', docData);
+        }
+        res.redirect('/success');
+      }
+    });
+
+
+  } else {
+    forbid(res);
+  }
+}))
+
 app.post('/uploadProject', upload.array('inputFile', 10),asyncMiddleware(async (req, res) => {
   console.log(req.body);
   console.log(req.files);
@@ -286,8 +339,9 @@ app.post('/uploadProject', upload.array('inputFile', 10),asyncMiddleware(async (
       /* 6: aprobado 
       /* ------------------------- */
       //nota
+      //avances -> 0
     ]
-    let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)', proyData);
+    let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,0)', proyData);
     for(let i = 0; i < req.files.length; i++) {
       let docData = [
         //id: 0: auto

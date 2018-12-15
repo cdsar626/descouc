@@ -42,6 +42,7 @@ CREATE TABLE proyectos(
 -- 5: rechazado por consejo
 -- 6: aprobado
   nota                    VARCHAR(300),
+  avances                 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 
   PRIMARY KEY(id)
 );
