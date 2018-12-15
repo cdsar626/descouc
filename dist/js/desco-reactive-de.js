@@ -73,13 +73,7 @@ $(document).ready(function () {
   let tabla = $('#dataTable').DataTable({
     ajax: '/getProyectos',
     columns: [
-      {
-        className: 'details-control',
-        data: 'id',
-        "render": function (data) {
-          return data + '<i class="fa fa-plus-square icon-fa" aria-hidden="true"></i>';
-        },
-      },
+      { data: 'id' },
       { data: 'nombreProyecto' },
       { data: 'responsables' },
       { data: 'ubicacionGeografica' },
@@ -241,18 +235,18 @@ $(document).ready(function () {
         <br>`
 
 
-          // Para mostrar detalles segun estatus
-          let plusesHtml = '';
+        // Para mostrar detalles segun estatus
+        let plusesHtml = '';
         plusesHtml =
-          `<form method="post" action="/descoUpdate">
-        <input class="d-none" name="id" value="${rowData.id}"></id>
-        <div class="form-group descoDetails">
-          <label for="nota">Nota  para el usuario que subió el proyecto</label>
-          <textarea ${status2Num(rowData.status) == 6? 'disabled' : ''} class="form-control descoDetails" id="nota" name="nota">${rowData.nota ? rowData.nota : ''}</textarea>
-        </div>
-        <br>
-            ${status2Num(rowData.status) == 6? textStatusHtml : selectHtml}
-      </form>`;
+        `<form method="post" action="/descoUpdate">
+          <input class="d-none" name="id" value="${rowData.id}"></id>
+          <div class="form-group descoDetails">
+            <label for="nota">Nota  para el usuario que subió el proyecto</label>
+            <textarea ${status2Num(rowData.status) == 6? 'disabled' : ''} class="form-control descoDetails" id="nota" name="nota">${rowData.nota ? rowData.nota : ''}</textarea>
+          </div>
+          <br>
+          ${status2Num(rowData.status) == 6? textStatusHtml : selectHtml}
+        </form>`;
 
       
         // Si está aprobado & no ha subido el aval
@@ -279,6 +273,42 @@ $(document).ready(function () {
         }
 
         fields.pluses.innerHTML = plusesHtml;
+
+        // Si esta aprobado
+        if(status2Num(rowData.status) == 6) {
+          fields.pluses.innerHTML = fields.pluses.innerHTML + 
+          `<div class="text-right text-white">
+            <a id="showParticipantes" class="btn btn-info 2ndModal">Ver participantes</a>
+            <a id="showAvances" class="btn btn-info 2ndModal">Ver avances</a>
+          </div>`;
+        
+          $('.2ndModal').on('click', function(ev) {
+            ev.preventDefault();
+            let altura = document.getElementById('projectModal').scrollTop;
+            let projectModal = $('#projectModal');
+            let targetModal;
+            switch(this.innerText){
+              case 'Ver participantes': targetModal = $('#participantesModal'); break;
+              case 'Ver avances': targetModal = $('#avancesModal'); break;
+            }
+
+            projectModal.modal('hide');
+            projectModal.on('hidden.bs.modal', function () {
+              targetModal.modal('show');
+              projectModal.off('hidden.bs.modal');
+            });
+            targetModal.on('hidden.bs.modal', function () {
+              projectModal.modal('show');
+              projectModal.on('shown.bs.modal', function () {
+                this.scrollTop = altura; // Baja el modal hasta el final
+                projectModal.off('shown.bs.modal');
+              });
+              targetModal.off('hidden.bs.modal');
+            });
+          });
+        } // fin if(aprobado)
+
+
         //colorear en rojo la tabla de estatus
         if (status2Num(rowData.status) == 0) $('#projectPluses').addClass('atention');
 

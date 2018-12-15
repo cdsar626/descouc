@@ -117,6 +117,9 @@ $(document).ready(function() {
           switch(nTipos[i]){
             case 1: cabezera = 'Originales'; break;
             case 2: cabezera = 'Actualizados'; break;
+            case 3: cabezera = 'Aval'; break;
+            case 4: cabezera = 'Avances'; break;
+            case 5: cabezera = 'Final'; break;
           };
           cabeceraHtml = cabeceraHtml + `<th>${cabezera}</th>`;
           filesByTipo.push(res.data.filter(x => x.tipo == nTipos[i]));
@@ -177,27 +180,64 @@ $(document).ready(function() {
             </div>
           </div>`
           }
-          console.log(rowData);
           plusesHtml = plusesHtml + 
           `<input class="btn btn-primary mx-auto d-block" type="submit" value="Actualizar">
           </form>`;
         }
-
+        
         fields.pluses.innerHTML = plusesHtml;
+        
+        // Si esta aprobado
+        if(status2Num(rowData.status) == 6) {
+          fields.pluses.innerHTML = fields.pluses.innerHTML + 
+          `<div class="text-right text-white">
+            <a id="showParticipantes" class="btn btn-info 2ndModal" style="float: left; margin-right: 5px;">Ver participantes</a>
+            <a id="showAvances" class="btn btn-info 2ndModal" style="float: left; margin-right: 5px;">Ver avances</a>
+            <a id="addAvances" class="btn btn-primary 2ndModal">Añadir avances</a>
+            <a id="addParticipantes" class="btn btn-primary 2ndModal">Añadir participantes</a>
+          </div>`;
+        
+          $('.2ndModal').on('click', function(ev) {
+            ev.preventDefault();
+            let altura = document.getElementById('projectModal').scrollTop;
+            let projectModal = $('#projectModal');
+            let targetModal;
+            switch(this.innerText){
+              case 'Ver participantes': targetModal = $('#participantesModal'); break;
+              case 'Ver avances': targetModal = $('#avancesModal'); break;
+              case 'Añadir avances': targetModal = $('#addAvancesModal'); break;
+              case 'Añadir participantes': targetModal = $('#addParticipantesModal'); break;
+            }
+
+            projectModal.modal('hide');
+            projectModal.on('hidden.bs.modal', function () {
+              targetModal.modal('show');
+              projectModal.off('hidden.bs.modal');
+            });
+            targetModal.on('hidden.bs.modal', function () {
+              projectModal.modal('show');
+              projectModal.on('shown.bs.modal', function () {
+                this.scrollTop = altura; // Baja el modal hasta el final
+                projectModal.off('shown.bs.modal');
+              });
+              targetModal.off('hidden.bs.modal');
+            });
+          });
+        } // fin if(aprobado)
+
         //colorear en rojo la tabla de estatus
         if(status2Num(rowData.status) == 0) $('#projectPluses').addClass('atention');
 
         $('.custom-file-input').change(function(e) {
           let campoInputFile = document.getElementById(this.id + 'Label');
           campoInputFile.innerText = $('#' + this.id).val().replace('C:\\fakepath\\','');
-          
         })
+
       });// fin ajax proyectos
-    });// fin evento modal
+
+    });// fin evento shown modal proyecto
 
   });//fin evento click table
-  
-  
 
   function status2Num(status) {
     switch(status) {
