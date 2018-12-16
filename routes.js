@@ -91,6 +91,15 @@ app.get('/getDocsFromProject', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.get('/getParticipantesFromProject', asyncMiddleware( async (req, res) => {
+  if(Number.isSafeInteger(Number(req.query.id)) && await isValidSessionAndRol(req, 2, 3)) {
+    let data = await pool.query('SELECT * FROM participantes WHERE refProyecto=?',[req.query.id]);
+    res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/getUsers', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {
     let data = await pool.query('SELECT * FROM usuarios');
@@ -182,6 +191,28 @@ app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
   }
 }))
 
+app.post('/agregarParticipantes', asyncMiddleware( async (req, res) => {
+  console.log(req.body);
+  if (await isValidSessionAndRol(req, 3)) {
+    let fechaNac = req.body.fechaNac.split('/');
+    let data = [
+      //id -> 0
+      req.body.nombre,
+      req.body.apellido,
+      req.body.cedula,
+      req.body.lugar,
+      req.body.genero,
+      `${fechaNac[2]}-${fechaNac[1]}-${fechaNac[0]}`,
+      req.body.tipoParticipante,
+      req.body.refProyecto,
+    ]
+    await pool.query('INSERT INTO participantes VALUES(0,?,?,?,?,?,?,?,?)', data);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.post('/descoUpdate', asyncMiddleware( async (req, res) => {
   console.log(req.body);
   if (await isValidSessionAndRol(req, 2)) {
@@ -204,6 +235,15 @@ app.post('/editUser', asyncMiddleware( async (req, res) => {
       [req.body.email, req.body.pass, req.body.rol, req.body.facultad, req.body.email]);
     }
     res.json({data: 'ok'});
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.post('/finalizarProyecto', asyncMiddleware(async (req, res) => {
+  if (await isValidSessionAndRol(req, 3)) {
+    await pool.query('UPDATE proyectos SET status=7 WHERE id=?', [req.body.fP]);
+    res.redirect('/success');
   } else {
     forbid(res);
   }
@@ -337,6 +377,7 @@ app.post('/uploadProject', upload.array('inputFile', 10),asyncMiddleware(async (
       /* 4: validado
       /* 5: rechazado por consejo
       /* 6: aprobado 
+      /* 7: finalizado
       /* ------------------------- */
       //nota
       //avances -> 0

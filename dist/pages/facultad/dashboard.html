@@ -231,7 +231,7 @@
 
     <!-- Participantes Modal-->
     <div class="modal fade" id="participantesModal" tabindex="-1" role="dialog" aria-labelledby="participantesModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
+      <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <div class="modal-title" id="participantesModalLabel">
@@ -242,10 +242,9 @@
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <div class="modal-body">Seleccione "Salir" si está listo para terminar la sesión.</div>
+          <div class="modal-body" id="participantesModalBody"></div>
           <div class="modal-footer">
             <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-            <a class="btn btn-primary" href="/logout">Salir</a>
           </div>
         </div>
       </div>
@@ -264,11 +263,81 @@
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <div class="modal-body">Seleccione "Salir" si está listo para terminar la sesión.</div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-            <a class="btn btn-primary" href="/logout">Salir</a>
-          </div>
+          <form method="POST" action="/agregarParticipantes">
+            <div class="modal-body">
+              <input id="addParticipantesRefProyecto" class="d-none" name="refProyecto"/>
+
+              <div class="form-group">
+                <div class="form-label-group">
+                  <input type="text" id="nombre" class="form-control" placeholder="Nombre" required autofocus name="nombre">
+                  <label for="nombre">Nombre</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="form-label-group">
+                  <input type="text" id="apellido" class="form-control" placeholder="Apellido" required autofocus name="apellido">
+                  <label for="apellido">Apellido</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="form-label-group">
+                  <input type="text" id="cedula" class="form-control" placeholder="V-123456789" required autofocus name="cedula">
+                  <label for="cedula">V-123456789</label>
+                </div>
+              </div>
+
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <label class="input-group-text" for="genero">Género</label>
+                </div>
+                <select required name="genero" class="custom-select" id="genero">
+                  <option value="">Seleccione...</option>
+                  <option value="F">Femenino</option>
+                  <option value="M">Masculino</option>
+                  <option value="O">Otros</option>
+                </select>
+              </div>
+
+              
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <label class="input-group-text" for="tipoParticipante">Tipo de participante</label>
+                </div>
+                <select required name="tipoParticipante" class="custom-select" id="tipoParticipante">
+                  <option value="">Seleccione...</option>
+                  <option value="1">Alumno</option>
+                  <option value="2">Tutor</option>
+                  <option value="3">De la comunidad</option>
+                </select>
+              </div>
+
+              <div id="placeholderLugar">
+                <div class="form-group">
+                  <div class="form-label-group">
+                    <input type="text" id="lugar" class="form-control" placeholder="Ubicación" required autofocus name="lugar">
+                    <label for="lugar">Ubicación</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="fechaNac">Fecha de nacimiento</label>
+                <input type="text" id="fechaNac" class="form-control" placeholder="dd/mm/aaaa" required autofocus name="fechaNac">
+                
+              </div>
+              
+              
+
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+              <input type="submit" class="btn btn-primary" value="Enviar">
+            </div>
+             
+          </form>
         </div>
       </div>
     </div>
@@ -356,6 +425,33 @@
           <div class="modal-footer">
             <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Finalizar Proyecto Modal-->
+    <div class="modal fade" id="finalizarProyectoModal" tabindex="-1" role="dialog" aria-labelledby="finalizarProyectoLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="modal-title" id="finalizarProyectoLabel">
+              <h5>¿Finalizar proyecto?</h5>
+              <h6 id="finalizarProyectoTitle"></h6>
+            </div>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <form method="post" action="/finalizarProyecto">
+            <div class="modal-body" id="finalizarProyectoBody">
+              ¿Está seguro? ¿Respuesta definitiva?
+            </div>
+            <input class="d-none" id="finalizarProyecto" name="fP">
+            <div class="modal-footer">
+              <input type="submit" class="btn btn-danger" value="Finalizar">
+              <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

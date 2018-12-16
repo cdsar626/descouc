@@ -29,6 +29,7 @@ $(document).ready(function () {
         case 4: data.status = 'validado'; break;
         case 5: data.status = 'rechazado por consejo'; break;
         case 6: data.status = 'aprobado'; break;
+        case 7: data.status = 'finalizado'; break;
       }
     },
     rowCallback: function (row, data) {
@@ -45,6 +46,7 @@ $(document).ready(function () {
         case 'validado': $('td:eq(5)', row).html('validado'); break;
         case 'rechazado por consejo': $('td:eq(5)', row).html('rechazado por consejo'); break;
         case 'aprobado': $('td:eq(5)', row).html('aprobado'); break;
+        case 'finalizado': $('td:eq(5)', row).html('finalizado'); break;
       }
       $('td:eq(2)', row).html(data.responsables.split('\n')[0]);
     },
@@ -180,15 +182,15 @@ $(document).ready(function () {
           <input class="d-none" name="id" value="${rowData.id}"></id>
           <div class="form-group descoDetails">
             <label for="nota">Nota  para el usuario que subió el proyecto</label>
-            <textarea ${status2Num(rowData.status) == 6? 'disabled' : ''} class="form-control descoDetails" id="nota" name="nota">${rowData.nota ? rowData.nota : ''}</textarea>
+            <textarea ${status2Num(rowData.status) >= 6? 'disabled' : ''} class="form-control descoDetails" id="nota" name="nota">${rowData.nota ? rowData.nota : ''}</textarea>
           </div>
           <br>
-          ${status2Num(rowData.status) == 6? textStatusHtml : selectHtml}
+          ${status2Num(rowData.status) >= 6? textStatusHtml : selectHtml}
         </form>`;
 
       
         // Si está aprobado & no ha subido el aval
-        if (status2Num(rowData.status) == 6 && !(filesByTipo.find(x => x[0].tipo == 3)) ) { // Falta modificar para que ingrese aval, no cualquier archivo
+        if (status2Num(rowData.status) >= 6 && !(filesByTipo.find(x => x[0].tipo == 3)) ) { // Falta modificar para que ingrese aval, no cualquier archivo
           plusesHtml = plusesHtml +
             `<span>Subir oficio de aval.</span>
             <form method="post" action="/subirAval" enctype="multipart/form-data">
@@ -213,7 +215,7 @@ $(document).ready(function () {
         fields.pluses.innerHTML = plusesHtml;
 
         // Si esta aprobado
-        if(status2Num(rowData.status) == 6) {
+        if(status2Num(rowData.status) >= 6) {
           fields.pluses.innerHTML = fields.pluses.innerHTML + 
           `<div class="text-right text-white">
             <a id="showParticipantes" class="btn btn-info 2ndModal">Ver participantes</a>
@@ -248,6 +250,47 @@ $(document).ready(function () {
 
         // Definicion del comportamiento al abrir los diferentes modales
         let avancesModal = $('#avancesModal');
+        let participantesModal = $('#participantesModal');
+
+        participantesModal.off('show.bs.modal').on('show.bs.modal', function() {
+          let participantesHtml = `
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <td>Nombre</td>
+                <td>Apellido</td>
+                <td>Cedula</td>
+                <td>Lugar</td>
+                <td>Genero</td>
+                <td>Nacimiento</td>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+            
+          `
+          $('#participantesModalTitle').text(rowData.nombreProyecto);
+          $.ajax({
+            method: 'get',
+            url: '/getParticipantesFromProject?id=' + rowData.id,
+          }).done(function(res){
+            console.log(res);
+            for (let i = 0; i < res.data.length; i++) {
+              console.log(res.data[i]);
+              participantesHtml = participantesHtml + `
+              <tr>
+                <td>${res.data[i].nombre}</td>
+                <td>${res.data[i].apellido}</td>
+                <td>${res.data[i].cedula}</td>
+                <td>${res.data[i].lugar}</td>
+                <td>${res.data[i].genero}</td>
+                <td>${(new Date(res.data[i].nacimiento)).toLocaleDateString()}</td>
+              </tr>
+              `;
+            }
+            participantesHtml += '</tbody></table>';
+            document.getElementById('participantesModalBody').innerHTML = participantesHtml;
+          });
+        });
 
         avancesModal.off('show.bs.modal').on('show.bs.modal', function() {
           let avancesHtml = '';
@@ -304,6 +347,7 @@ $(document).ready(function () {
       case 'validado': return 4; break;
       case 'rechazado por consejo': return 5; break;
       case 'aprobado': return 6; break;
+      case 'finalizado': return 7; break;
     }
   }
 
@@ -316,6 +360,7 @@ $(document).ready(function () {
       case 4: return 'validado'; break;
       case 5: return 'rechazado por consejo'; break;
       case 6: return 'aprobado'; break;
+      case 7: return 'finalizado'; break;
     }
   }
 

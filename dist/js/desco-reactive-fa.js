@@ -29,6 +29,7 @@ $(document).ready(function() {
         case 4: data.status = 'validado'; break;
         case 5: data.status = 'rechazado por consejo'; break;
         case 6: data.status = 'aprobado'; break;
+        case 7: data.status = 'finalizado'; break;
       }
     },
     rowCallback: function (row, data) {
@@ -45,6 +46,7 @@ $(document).ready(function() {
         case 'validado': $('td:eq(5)', row).html('validado'); break;
         case 'rechazado por consejo': $('td:eq(5)', row).html('rechazado por consejo'); break;
         case 'aprobado': $('td:eq(5)', row).html('aprobado'); break;
+        case 'finalizado': $('td:eq(5)', row).html('finalizado'); break;
       }
       $('td:eq(2)', row).html(data.responsables.split('\n')[0]);
     },
@@ -155,7 +157,7 @@ $(document).ready(function() {
         // Para mostrar detalles segun estatus
         let plusesHtml = '';
         plusesHtml = `<br>
-        <table id="projectPluses" class="table-bordered ${status2Num(rowData.status) == 0? 'atention':'no-prob'}"
+        <table id="projectPluses" class="table-bordered"
         cellpadding="5" cellspacing="0" border="0"
         style="padding-left:50px; margin:auto;">
         <tr>
@@ -196,14 +198,20 @@ $(document).ready(function() {
         fields.pluses.innerHTML = plusesHtml;
         
         // Si esta aprobado
-        if(status2Num(rowData.status) == 6) {
+        if(status2Num(rowData.status) >= 6) {
           fields.pluses.innerHTML = fields.pluses.innerHTML + 
           `<div class="text-right text-white">
-            <a id="showParticipantes" class="btn btn-info 2ndModal" style="float: left; margin-right: 5px;">Ver participantes</a>
-            <a id="showAvances" class="btn btn-info 2ndModal" style="float: left; margin-right: 5px;">Ver avances</a>
-            <a id="addAvances" class="btn btn-primary 2ndModal">Añadir avances</a>
-            <a id="addParticipantes" class="btn btn-primary 2ndModal">Añadir participantes</a>
+            <a id="showParticipantes" class="btn btn-info 2ndModal" ${status2Num(rowData.status) == 6 ? 'style="float: left; margin-right: 5px;"' : ''}>Ver participantes</a>
+            <a id="showAvances" class="btn btn-info 2ndModal" ${status2Num(rowData.status) == 6 ? 'style="float: left; margin-right: 5px;"' : ''}>Ver avances</a>
+            ${status2Num(rowData.status) == 6 ? '<a id="addAvances" class="btn btn-primary 2ndModal">Añadir avances</a>' : ''}
+            ${status2Num(rowData.status) == 6 ? '<a id="addParticipantes" class="btn btn-primary 2ndModal">Añadir participantes</a>' : ''}
           </div>`;
+          if (status2Num(rowData.status) == 6  && rowData.avances > 0) {
+            fields.pluses.innerHTML = fields.pluses.innerHTML +
+            `<div class="text-right text-white mt-5">
+              <a id="finalizarProyecto" class="btn btn-danger 2ndModal">Finalizar proyecto</a>
+            </div>`;
+          }
         
           $('.2ndModal').on('click', function(ev) {
             ev.preventDefault();
@@ -215,6 +223,7 @@ $(document).ready(function() {
               case 'Ver avances': targetModal = $('#avancesModal'); break;
               case 'Añadir avances': targetModal = $('#addAvancesModal'); break;
               case 'Añadir participantes': targetModal = $('#addParticipantesModal'); break;
+              case 'Finalizar proyecto': targetModal = $('#finalizarProyectoModal'); break;
             }
 
             projectModal.modal('hide');
@@ -230,24 +239,67 @@ $(document).ready(function() {
               });
               targetModal.off('hidden.bs.modal');
             });
-          });
+          }); // fin evento click botones de modales
         } // fin if(aprobado)
 
         // Definicion del comportamiento al abrir los diferentes modales
         let addAvancesModal = $('#addAvancesModal');
         let addParticipantesModal = $('#addParticipantesModal');
         let avancesModal = $('#avancesModal');
+        let finalizarModal = $('#finalizarProyectoModal');
+        let participantesModal = $('#participantesModal');
+
+        participantesModal.off('show.bs.modal').on('show.bs.modal', function() {
+          let participantesHtml = `
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <td>Nombre</td>
+                <td>Apellido</td>
+                <td>Cedula</td>
+                <td>Lugar</td>
+                <td>Genero</td>
+                <td>Nacimiento</td>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+            
+          `
+          $('#participantesModalTitle').text(rowData.nombreProyecto);
+          $.ajax({
+            method: 'get',
+            url: '/getParticipantesFromProject?id=' + rowData.id,
+          }).done(function(res){
+            console.log(res);
+            for (let i = 0; i < res.data.length; i++) {
+              console.log(res.data[i]);
+              participantesHtml = participantesHtml + `
+              <tr>
+                <td>${res.data[i].nombre}</td>
+                <td>${res.data[i].apellido}</td>
+                <td>${res.data[i].cedula}</td>
+                <td>${res.data[i].lugar}</td>
+                <td>${res.data[i].genero}</td>
+                <td>${(new Date(res.data[i].nacimiento)).toLocaleDateString()}</td>
+              </tr>
+              `;
+            }
+            participantesHtml += '</tbody></table>';
+            document.getElementById('participantesModalBody').innerHTML = participantesHtml;
+          });
+        });
+
+
 
         avancesModal.off('show.bs.modal').on('show.bs.modal', function() {
           let avancesHtml = '';
-          console.log(this);
           $('#avancesModalTitle').text(rowData.nombreProyecto);
           $.ajax({
             method:'get',
             url: '/getAvancesFromProject?id=' + rowData.id,
           }).done(function(res){
             console.log(res);
-            for(let i = 0; i < res.data.length; i++) {
+            for (let i = 0; i < res.data.length; i++) {
               console.log(res.data[i]);
               avancesHtml = avancesHtml + `
                 <h6>Avance ${i+1} <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
@@ -271,6 +323,42 @@ $(document).ready(function() {
         }); // fin evento aparicion avances modal
         
         addParticipantesModal.off('show.bs.modal').on('show.bs.modal', function() {
+          document.getElementById('addParticipantesRefProyecto').value = rowData.id;
+           // cuando cambia el tipo de participante al agregar participante
+          $('#tipoParticipante').off('change').on('change', function() {
+            let lugarComunidadHtml = `
+            <div id="placeholderLugar">
+              <div class="form-group">
+                <div class="form-label-group">
+                  <input type="text" id="lugar" class="form-control" placeholder="Facultad o ubicación" required autofocus name="lugar">
+                  <label for="lugar">Facultad o ubicación</label>
+                </div>
+              </div>
+            </div>
+            `;
+            let lugarUcHtml = `
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="lugar">Facultad</label>
+              </div>
+              <select required name="lugar" class="custom-select" id="lugar">
+              <option value='' selected disabled>Escoge...</option>
+              <option value="FCJP">Ciencias Jurídicas y Políticas (FCJP)</option>
+              <option value="FCS">Ciencias de la Salud (FCS)</option>
+              <option value="FaCES">Ciencias Económicas y Sociales (FaCES)</option>
+              <option value="FaCE">Ciencias de la Educación (FaCE)</option>
+              <option value="FaCyT">Experimental de Ciencia y Tecnología (FaCyT)</option>
+              <option value="Ingenieria">Ingeniería</option>
+              <option value="Odontologia">Odontología</option>
+              </select>
+            </div>
+            `;
+            if(this.value == 3) {
+              $('#placeholderLugar').html(lugarComunidadHtml);
+            } else {
+              $('#placeholderLugar').html(lugarUcHtml);
+            }
+          });
           console.log(rowData);
           $('#addParticipantesModalTitle').text(rowData.nombreProyecto);
         })
@@ -279,8 +367,20 @@ $(document).ready(function() {
           console.log(this);
           $('#addAvancesModalTitle').text(rowData.nombreProyecto);
         })
-        //colorear en rojo la tabla de estatus
-        if(status2Num(rowData.status) == 0) $('#projectPluses').addClass('atention');
+        
+        finalizarModal.off('show.bs.modal').on('show.bs.modal', function() {
+          console.log(this);
+          $('#finalizarProyectoTitle').text(rowData.nombreProyecto);
+          //let finalizarHtml = '';
+          let div = document.getElementById('finalizarProyecto');
+          div.value = rowData.id;
+        })
+        //colorear en la tabla de estatus
+        if(status2Num(rowData.status) == 0 || status2Num(rowData.status) == 3 || status2Num(rowData.status) == 5){
+          $('#projectPluses').addClass('atention');
+        } else {
+          $('#projectPluses').addClass('no-prob');
+        }
         //Si se cambia el archivo al estar en el estatus "esperando correccion"
         $('.custom-file-input').change(function(e) {
           let campoInputFile = document.getElementById(this.id + 'Label');
@@ -344,6 +444,8 @@ $(document).ready(function() {
     }
   })
 
+ 
+
   function diasEn(mes) {
     switch(Number(mes)){
       case 1: case 3: case 5: case 7: case 8: case 10: case 12:
@@ -363,6 +465,8 @@ $(document).ready(function() {
       case 'validado': return 4; break;
       case 'rechazado por consejo': return 5; break;
       case 'aprobado': return 6; break;
+      case 'finalizado': return 7; break;
+
     }
   }
 
@@ -375,6 +479,7 @@ $(document).ready(function() {
       case 4: return 'validado'; break;
       case 5: return 'rechazado por consejo'; break;
       case 6: return 'aprobado'; break;
+      case 7: return 'finalizado'; break;
     }
   }
 
