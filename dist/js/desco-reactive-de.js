@@ -140,7 +140,7 @@ $(document).ready(function () {
                 `<td><a target="_blank" href="${filesByTipo[i][k].ruta}">Archivo ${filesByTipo[i][k].numero}</a></td>`;
               } else {
                 htmlFiles = htmlFiles +
-                `<td> ------- </td>`;
+                ``;
               }
             }
           }
@@ -273,9 +273,7 @@ $(document).ready(function () {
             method: 'get',
             url: '/getParticipantesFromProject?id=' + rowData.id,
           }).done(function(res){
-            console.log(res);
             for (let i = 0; i < res.data.length; i++) {
-              console.log(res.data[i]);
               participantesHtml = participantesHtml + `
               <tr>
                 <td>${res.data[i].nombre}</td>
@@ -299,9 +297,10 @@ $(document).ready(function () {
             method:'get',
             url: '/getAvancesFromProject?id=' + rowData.id,
           }).done(function(res){
-            console.log(res);
-            let avancesIds = uniqueArrayDocsObjects(filesByTipo[3]);
             for(let i = 0; i < res.data.length; i++) {
+              // Verificación en caso de que haya avances pero no haya el aval
+              let numTipo = filesByTipo[3] ? 3 : 2;
+              let avancesIds = uniqueArrayDocsObjects(filesByTipo[numTipo]);
               avancesHtml = avancesHtml + `
                 <h6>Avance ${i+1} <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
                 <div>
@@ -312,7 +311,7 @@ $(document).ready(function () {
                 </div>
               `
 
-              let docsFromiAvance = filesByTipo[3].filter(x => x.refAvance == avancesIds[i]);
+              let docsFromiAvance = filesByTipo[numTipo].filter(x => x.refAvance == avancesIds[i]);
               for(let j = 0; j < docsFromiAvance.length; j++) {
                 avancesHtml = avancesHtml + `
                   <a target="_blank" href="${docsFromiAvance[j].ruta}">Archivo ${j+1}</a>

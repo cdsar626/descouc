@@ -5,7 +5,7 @@ CREATE DATABASE interoperables;
 USE interoperables;
 
 CREATE TABLE usuarios(
-  email     VARCHAR(25) NOT NULL PRIMARY KEY,
+  email     VARCHAR(35) NOT NULL PRIMARY KEY,
   pass      VARCHAR(40) NOT NULL,
   rol       TINYINT UNSIGNED NOT NULL,
 -- 1: Admin
@@ -17,6 +17,7 @@ CREATE TABLE usuarios(
 
 CREATE TABLE proyectos(
   id                      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  email                   VARCHAR(35) NOT NULL,
   nombreProyecto          VARCHAR(300) NOT NULL,
   orgResponsable          VARCHAR(300) NOT NULL,
   responsables            VARCHAR(350) NOT NULL,
@@ -44,7 +45,13 @@ CREATE TABLE proyectos(
   nota                    VARCHAR(300),
   avances                 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 
-  PRIMARY KEY(id)
+  PRIMARY KEY(id),
+  INDEX fk_proyectos_email_idx (email DESC),
+    CONSTRAINT fk_proyectos_email
+    FOREIGN KEY (email)
+    REFERENCES usuarios (email)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 );
 
 CREATE TABLE avances(

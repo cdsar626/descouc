@@ -111,7 +111,12 @@ app.get('/getUsers', asyncMiddleware( async (req, res) => {
 
 app.get('/getProyectos', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 2, 3)) {
-    let data = await pool.query('SELECT * FROM proyectos');
+    let data;
+    if(req.session.rol == 3) {
+      data = await pool.query('SELECT * FROM proyectos WHERE email=?',[req.session.user]);
+    } else {
+      data = await pool.query('SELECT * FROM proyectos');
+    }
     res.json({ data });
   } else {
     forbid(res);
@@ -160,7 +165,10 @@ app.get('/success', asyncMiddleware( async (req, res) => {
 
 app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
   if(await isValidSessionAndRol(req, 3)) { // Si es valida la sesion
-
+    if (!(await verificarAutoridad(req, req.body.refProyecto))) {
+      res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+      throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+    }
     await upload.any()(req, res, async function(err) { // Sube los archivos
       if(err) {
         return res.end('Error al subir archivos. Esto puede ocurrir si algun archivo es mayor a 5MB.');
@@ -192,8 +200,11 @@ app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
 }))
 
 app.post('/agregarParticipantes', asyncMiddleware( async (req, res) => {
-  console.log(req.body);
   if (await isValidSessionAndRol(req, 3)) {
+    if (!(await verificarAutoridad(req, req.body.refProyecto))) {
+      res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+      throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+    }
     let fechaNac = req.body.fechaNac.split('/');
     let data = [
       //id -> 0
@@ -242,6 +253,10 @@ app.post('/editUser', asyncMiddleware( async (req, res) => {
 
 app.post('/finalizarProyecto', asyncMiddleware(async (req, res) => {
   if (await isValidSessionAndRol(req, 3)) {
+    if (!(await verificarAutoridad(req, req.body.refProyecto))) {
+      res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+      throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+    }
     await pool.query('UPDATE proyectos SET status=7 WHERE id=?', [req.body.fP]);
     res.redirect('/success');
   } else {
@@ -302,7 +317,10 @@ app.post('/subirAval', asyncMiddleware(async (req, res) =>{
 
 app.post('/subirAvance', asyncMiddleware(async (req, res) => {
   if(await isValidSessionAndRol(req, 3)) { // Si es valida la sesion
-
+    if (!(await verificarAutoridad(req, req.body.refProyecto))) {
+      res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+      throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+    }
     await upload.array('inputFile',10)(req, res, async function(err) { // Sube los archivos
       if(err) {
         return res.end('Error al subir archivos. Esto puede ocurrir si algun archivo es mayor a 5MB.');
@@ -350,6 +368,7 @@ app.post('/uploadProject', upload.array('inputFile', 10),asyncMiddleware(async (
   console.log(req.files);
   if (await isValidSessionAndRol(req,3)) {
     let proyData = [
+      req.session.user, // email
       req.body.nombreProyecto,
       req.body.orgResponsable,
       req.body.responsables,
@@ -382,7 +401,7 @@ app.post('/uploadProject', upload.array('inputFile', 10),asyncMiddleware(async (
       //nota
       //avances -> 0
     ]
-    let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,0)', proyData);
+    let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,0)', proyData);
     for(let i = 0; i < req.files.length; i++) {
       let docData = [
         //id: 0: auto
@@ -425,6 +444,12 @@ async function verificarUser(req) {
   console.log(req.body);
   let resp = await pool.query('SELECT * FROM usuarios WHERE email = ? AND pass = SHA(?)', [req.body.email,req.body.pass]);
   return resp.length ? resp[0] : false;
+}
+
+async function verificarAutoridad(req, id) {
+
+  let resp = await pool.query('SELECT id,email FROM proyectos WHERE id=? AND email=?', [id,req.session.user]);
+  return resp.length ? true : false;
 }
 
 // Verifica que el usuario y rol concuerden con la bd
