@@ -64,7 +64,7 @@
           </div>
         </li>
         <li class="nav-item dropdown no-arrow mx-1">
-          <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">expan
             <i class="fas fa-envelope fa-fw"></i>
             <span class="badge badge-danger">7</span>
           </a>
@@ -149,6 +149,12 @@
             </div>
 
             <div class="form-group">
+              <label for="resumen">Descripción General</label>
+              <textarea class="form-control" id="resumen" name="resumen"></textarea>
+            </div>
+
+
+            <div class="form-group">
               <div class="form-label-group">
                 <input type="text" id="orgResponsable" class="form-control" placeholder="Organización Responsable" required name="orgResponsable">
                 <label for="orgResponsable">Organización Responsable</label>
@@ -156,13 +162,26 @@
             </div>
 
             <div class="form-group">
-              <label for="inputResponsables">Responsables del proyecto</label>
+              <label for="responsables">Responsables del proyecto</label>
               <textarea class="form-control" id="responsables" name="responsables"></textarea>
             </div>
 
-            <div class="form-group">
-              <label for="ubicacionGeografica">Ubicación Geográfica</label>
-              <textarea class="form-control" id="ubicacionGeografica" name="ubicacionGeografica"></textarea>
+            <label for="ubiEstado">Ubicación Geográfica</label>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <select id="ubiEstado" placeholder="Estado"></select>
+                
+              </div>
+              <div class="form-group col-md-4">
+                <select id="ubiMunicipio" placeholder="Municipio" disabled></select>
+                
+              </div>
+              <div class="form-group col-md-4">
+                <select id="ubiParroquia" placeholder="Parroquia" disabled></select>
+                    
+              </div>
+              
+              <textarea placeholder="Ubicación detallada" class="form-control" id="ubicacionGeografica" name="ubicacionGeografica"></textarea>
             </div>
 
             <div class="form-group">
@@ -283,6 +302,7 @@
               </div>
               <span id="errorPlace"></span>
             </div>
+
             <input id="editButton" class="btn btn-primary btn-block" type="submit" value="Enviar">
           </form>
 

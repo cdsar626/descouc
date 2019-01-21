@@ -14,9 +14,26 @@ CREATE TABLE usuarios(
   facultad  VARCHAR(15)
 );
 
+CREATE TABLE areasPrioritarias(
+  id                      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  descripcion             VARCHAR(300) NOT NULL,
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE planesPatria(
+  id                      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  descripcion             VARCHAR(300) NOT NULL,
+  PRIMARY KEY(id)
+);
+
 
 CREATE TABLE proyectos(
   id                      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  descripcionGeneral      VARCHAR(300) NOT NULL,
+  estado                  VARCHAR(300) NOT NULL,
+  municipio               VARCHAR(300) NOT NULL,
+  parroquia               VARCHAR(300) NOT NULL,
+  direccion               VARCHAR(300) NOT NULL,
   email                   VARCHAR(35) NOT NULL,
   nombreProyecto          VARCHAR(300) NOT NULL,
   orgResponsable          VARCHAR(300) NOT NULL,
@@ -29,19 +46,21 @@ CREATE TABLE proyectos(
   duracionProyecto        VARCHAR(30) NOT NULL,
   fechaInicio             DATE NOT NULL,
   fechaFin                DATE NOT NULL,
+  fechaEnvio              DATE NOT NULL,
+  fechaStatus             DATE NOT NULL,
   objGeneral              VARCHAR(300) NOT NULL,
   objsEspecificos         VARCHAR(1000) NOT NULL,
   tipo                    TINYINT UNSIGNED NOT NULL,
--- 1: Servicio Comunitario
--- 2: Extension
+-- 0: Extension
+-- 1: Socio Productivo
+-- 2: Socio Comunitario
+-- 3: Integrador
   status                  TINYINT UNSIGNED NOT NULL,
--- 0: esperando correccion
--- 1: recibido
--- 2: para revisar
--- 3: rechazado por desco
--- 4: validado
--- 5: rechazado por consejo
--- 6: aprobado
+-- 0: Recibido
+-- 1: En revision
+-- 2: Aprobado
+-- 3: Rechazado
+-- 4: Devuelto para modificar
   nota                    VARCHAR(300),
   avances                 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 
@@ -78,11 +97,11 @@ CREATE TABLE documentos(
   nombreDoc             VARCHAR(350) NOT NULL,
   fechaSubida           DATE NOT NULL,
   tipo                  TINYINT UNSIGNED NOT NULL,
--- 1: inicio,
--- 2: actualizados,
--- 3: aval,
--- 4: avances,
--- 5: final
+-- 1: Inicio,
+-- 2: Actualizados,
+-- 3: Aval,
+-- 4: Avances,
+-- 5: Final
   numero                TINYINT UNSIGNED NOT NULL,
 -- Para, en dado caso, saber cual es el archivo que se corrige
 
@@ -108,6 +127,7 @@ CREATE TABLE participantes(
   apellido      VARCHAR(50),
   cedula        VARCHAR(20),
   lugar         VARCHAR(100),
+  certificado   VARCHAR(300),
 -- cuál facultad o comunidad
   genero        VARCHAR(1),
 -- F: Femenino,
@@ -131,7 +151,9 @@ CREATE TABLE participantes(
 -- Para acceder a la base de datos desde el cliente
 -- Se crea un usuario no-root con todos los privilegios sobre
 -- la database interoperables
-CREATE USER 'desco'@'localhost' IDENTIFIED BY '12Desco!';
+-- CREATE USER 'desco'@'localhost' IDENTIFIED BY '12Desco!';
+CREATE USER 'desco'@'localhost' IDENTIFIED WITH mysql_native_password BY '12Desco!';
+
 GRANT ALL PRIVILEGES  ON interoperables.* TO 'desco'@'localhost';
 
 -- Para acceder al sistema se necesita minimo un usuario administrador

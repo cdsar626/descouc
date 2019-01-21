@@ -53,6 +53,14 @@ const asyncMiddleware = fn =>
 
 //GET Requests ------------------------------------
 
+app.get('/areas', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2)) {
+    send(res, 'desco/areas.html');
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/dashboard', (req, res) => {
   if(req.session.rol == 1) {
     send(res, 'admin/dashboard.html');
@@ -68,6 +76,16 @@ app.get('/dashboard', (req, res) => {
 app.get('/enviarProyecto', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 3)) {
     send(res, 'facultad/enviarProyecto.html');
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.get('/getAreasPrioritarias', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2, 3)) {
+    let data;
+    data = await pool.query('SELECT * FROM areasPrioritarias;');
+    res.json({ data });
   } else {
     forbid(res);
   }
@@ -100,14 +118,16 @@ app.get('/getParticipantesFromProject', asyncMiddleware( async (req, res) => {
   }
 }) );
 
-app.get('/getUsers', asyncMiddleware( async (req, res) => {
-  if(await isValidSessionAndRol(req, 1)) {
-    let data = await pool.query('SELECT * FROM usuarios');
+app.get('/getPlanesPatria', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2, 3)) {
+    let data;
+    data = await pool.query('SELECT * FROM planesPatria;');
     res.json({ data });
   } else {
     forbid(res);
   }
 }) );
+
 
 app.get('/getProyectos', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 2, 3)) {
@@ -123,6 +143,16 @@ app.get('/getProyectos', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.get('/getUsers', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 1)) {
+    let data = await pool.query('SELECT * FROM usuarios');
+    res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
+
 app.get('/login', (req, res) => {
   if(req.session.isPopulated) {
     res.redirect('/dashboard');
@@ -135,6 +165,14 @@ app.get('/logout', (req, res) => {
   req.session = null;
   res.redirect('/');
 })
+
+app.get('/planes', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2)) {
+    send(res, 'desco/planes.html');
+  } else {
+    forbid(res);
+  }
+}) );
 
 app.get('/proyectos/:tipo/:nombre', (req, res) => {
   console.log(req.params);
@@ -199,6 +237,16 @@ app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
   }
 }))
 
+app.post('/agregarAreaPrioritaria', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('INSERT INTO areasPrioritarias VALUES (0,?)', [req.body.area]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.post('/agregarParticipantes', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 3)) {
     if (!(await verificarAutoridad(req, req.body.refProyecto))) {
@@ -224,6 +272,37 @@ app.post('/agregarParticipantes', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.post('/agregarPlanPatria', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('INSERT INTO planesPatria VALUES (0,?)', [req.body.plan]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
+
+app.post('/deleteAreaPrioritaria', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('DELETE FROM areasPrioritarias WHERE id=?', [req.body.id]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.post('/deletePlanPatria', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('DELETE FROM planesPatria WHERE id=?', [req.body.id]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.post('/descoUpdate', asyncMiddleware( async (req, res) => {
   console.log(req.body);
   if (await isValidSessionAndRol(req, 2)) {
@@ -235,6 +314,25 @@ app.post('/descoUpdate', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.post('/editAreaPrioritaria', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('UPDATE areasPrioritarias SET descripcion=? WHERE id=?', [req.body.area, req.body.id]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.post('/editPlanPatria', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('UPDATE planesPatria SET descripcion=? WHERE id=?', [req.body.plan, req.body.id]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
 
 app.post('/editUser', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {

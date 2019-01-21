@@ -78,6 +78,27 @@ $(document).ready(function() {
     console.log($('#anoFin').val())
     console.log(new Date($('#anoFin').val(), this.value-1, diasSelect.value))
   })
+
+
+
+  // Ubicacion Select2
+  $.fn.select2.defaults.set('theme', 'bootstrap4')
+
+  $('#ubiEstado').select2({
+    placeholder: 'Estado',
+    width: '100%',
+  });
+
+  $('#ubiMunicipio').select2({
+    placeholder: 'Municipio',
+    width: '100%',
+  });
+
+  $('#ubiParroquia').select2({
+    placeholder: 'Parroquia',
+    width: '100%',
+  });
+
     
   // Coloca el nombre del archivo en el campo de inputFile cuando cambia
   $('#inputFile').change(function(e) {

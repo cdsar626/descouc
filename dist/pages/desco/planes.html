@@ -19,31 +19,13 @@
 
     <!-- Page level plugin CSS-->
     <link href="css/datatables.min.css" rel="stylesheet">
+    <link href="css/select2.min.css" rel="stylesheet">
+    <link href="css/select2-bootstrap4.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin.css" rel="stylesheet">
 
   </head>
-
-  <style>
-    #dataTable tr {
-      cursor: pointer;
-    }
-    .descoDetails {
-      max-width: 500px;
-      margin: auto;
-      text-align: center;
-    }
-    .isloading {
-      cursor: wait;
-    }
-    .atention {
-      background-color:rgba(200,50,50,0.1);
-    }
-    .no-prob {
-      background-color:rgba(50,200,50,0.1);
-    }
-  </style>
 
   <body id="page-top">
 
@@ -112,8 +94,8 @@
 
       <!-- Sidebar -->
       <ul class="sidebar navbar-nav">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
           </a>
@@ -126,7 +108,7 @@
           <div class="dropdown-menu" aria-labelledby="pagesDropdown">
             <!--h6 class="dropdown-header">Login Screens:</h6-->
             <a class="dropdown-item" href="/areas">Areas prioritarias</a>
-            <a class="dropdown-item" href="/planes">Planes de patria</a>
+            <a class="dropdown-item active" href="/planes">Planes de patria</a>
             <div class="dropdown-divider"></div>
             <h6 class="dropdown-header">Other Pages:</h6>
             <a class="dropdown-item" href="404.html">404 Page</a>
@@ -141,45 +123,25 @@
 
           <!-- Breadcrumbs-->
           <ol class="breadcrumb">
-            <li class="breadcrumb-item active">Dashboard - DESCO</li>
+            <li class="breadcrumb-item active">
+              <!--a href="#">Dashboard</a-->
+              Dashboard - DESCO
+            </li>
           </ol>
 
-          <!-- DataTables Example -->
-          <div class="card mb-3">
-            <div class="card-header">
-              <i class="fas fa-table"></i>
-              Lista de proyectos</div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
-                  <thead>
-                    <tr>
-                      <th>id</th>
-                      <th>Nombre</th>
-                      <th>Primer responsable</th>
-                      <th>Ubicación</th>
-                      <th>Tipo</th>
-                      <th>Estatus</th>
-                    </tr>
-                  </thead>
-                  <tfoot>
-                    <tr>
-                      <th>id</th>
-                      <th>Nombre</th>
-                      <th>Primer responsable</th>
-                      <th>Ubicación</th>
-                      <th>Tipo</th>
-                      <th>Estatus</th>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
-            <div class="card-footer small text-muted">
-              Última actualización: <span class="fecha"></span>
-            </div>
-          </div>
+          <!-- Page Content -->
+          <h1>Planes de Patria <button data-toggle="modal" data-target="#newPlanModal" type="button" class="btn btn-primary">Nuevo plan</button></h1>
+          
+          <ul class="list-group" id="planesList">
+            <li class="list-group-item text-center">Cargando...</li>
 
+          </ul>
+
+          <hr>
+          <div style="text-align: center">
+            <a class="btn btn-primary" href="/dashboard">Volver al dashboard</a>
+          </div>
+          <br>
         </div>
         <!-- /.container-fluid -->
 
@@ -222,120 +184,76 @@
       </div>
     </div>
 
-    <!-- Avances Modal-->
-    <div class="modal fade" id="avancesModal" tabindex="-1" role="dialog" aria-labelledby="avancesModalLabel" aria-hidden="true">
+    <!-- Agregar Plan Modal-->
+    <div class="modal fade" id="newPlanModal" tabindex="-1" role="dialog" aria-labelledby="newPlanModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <div class="modal-title" id="AvancesModalLabel">
-              <h5>Avances</h5>
-              <h6 id="avancesModalTitle"></h6>
-            </div>
+            <h5 class="modal-title" id="newPlanModalLabel">Agregar Plan de Patria</h5>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <div class="modal-body" id="avancesModalBody"></div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-          </div>
+          <form method="POST" action="/agregarPlanPatria">
+            <div class="modal-body">
+              <textarea required name="plan" class="form-control" placeholder="Plan de Patria"></textarea>
+            </div>
+            <div class="modal-footer">
+              <input type="submit" class="btn btn-primary" value="Agregar">
+              <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
 
-    <!-- Participantes Modal-->
-    <div class="modal fade" id="participantesModal" tabindex="-1" role="dialog" aria-labelledby="participantesModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
+    <!-- Edit Plan Modal-->
+    <div class="modal fade" id="editPlanModal" tabindex="-1" role="dialog" aria-labelledby="editPlanModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <div class="modal-title" id="participantesModalLabel">
-              <h5>Participantes</h5>
-              <h6 id="participantesModalTitle"></h6>
-            </div>
+            <h5 class="modal-title" id="editPlanModalLabel">Editar Plan de Patria</h5>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <div class="modal-body" id="participantesModalBody"></div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-          </div>
+          <form method="POST" action="/editPlanPatria">
+            <div class="modal-body">
+              <input class="d-none" id="editPlan" name="id"></input>
+              <textarea required id="editPlanTextarea" name="plan" class="form-control" placeholder="Plan de Patria"></textarea>
+            </div>
+            <div class="modal-footer">
+              <input type="submit" class="btn btn-primary" value="Modificar">
+              <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
 
-    <!-- Project Modal-->
-    <div class="modal fade" id="projectModal" tabindex="-1" role="dialog" aria-labelledby="projectModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="projectModalLabel">Proyecto id:</h5>
-            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <table id="tableProject" class="table-bordered" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; margin:auto">
-              <tr>
-                <td>Nombre:</td>
-                <td colspan="3" id="projectModalNombre"></td>
-              </tr>
-              <tr>
-                <td>Organización Responsable:</td>
-                <td colspan="3" id="projectModalOrgResponsable"></td>
-              </tr>
-              <tr>
-                <td>Responsables:</td>
-                <td colspan="3" id="projectModalResponsables"></td>
-              </tr>
-              <tr>
-                <td>Ubicación geográfica:</td>
-                <td colspan="3" id="projectModalUbGeo"></td>
-              </tr>
-              <tr>
-                <td>Beneficiarios directos:</td>
-                <td colspan="3" id="projectModalBenefD"></td>
-              </tr>
-              <tr>
-                <td>Beneficiarios indirectos:</td>
-                <td colspan="3" id="projectModalBenefI"></td>
-              </tr>
-              <tr>
-                <td>Tipo de Proyecto:</td>
-                <td id="projectModalTipoP"></td>
-                <td>Duración del proyecto:</td>
-                <td id="projectModalDuracion"></td>
-              </tr>
-              <tr>
-                <td>Fecha de inicio:</td>
-                <td id="projectModalFechaI"></td>
-                <td>Fecha de fin:</td>
-                <td id="projectModalFechaF"></td>
-              </tr>
-              <tr>
-                <td>Objetivo general:</td>
-                <td colspan="3" id="projectModalObjGeneral"></td>
-              </tr>
-              <tr>
-                <td>Objetivos Específicos:</td>
-                <td colspan="3" id="projectModalObjsEspecificos"></td>
-              </tr>
-              <tr id="projectModalFilesHeads">
-              </tr>
-              <tbody id="tableProjectFiles">
-              </tbody>
-            </table>
-            <div id="projectModalPluses">
-              
+    <!-- Delete Plan Modal-->
+    <div class="modal fade" id="deletePlanModal" tabindex="-1" role="dialog" aria-labelledby="deletePlanModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deletePlanModalLabel">Eliminar Plan de Patria</h5>
+              <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-            <!--a class="btn btn-primary" href="/logout">Salir</a-->
+            <form method="POST" action="/deletePlanPatria">
+              <div class="modal-body">
+                <input class="d-none" id="deletePlan" name="id"></input>
+                <h6>Confirme que desea borrar este plan.</h5>
+              </div>
+              <div class="modal-footer">
+                <input type="submit" class="btn btn-danger" value="Eliminar">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-    </div>
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
@@ -347,8 +265,9 @@
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin.js"></script>
 
-    <script src="js/datatables.min.js"></script>
-    <script src="js/desco-reactive-de.js"></script>
+
+    <script src="js/desco-reactive-de-planes.js"></script>
+    
 
   </body>
 
