@@ -164,7 +164,9 @@
                       <th>id</th>
                       <th>Nombre</th>
                       <th>Primer responsable</th>
-                      <th>Ubicación</th>
+                      <th>Estado</th>
+                      <th>Municipio</th>
+                      <th>Parroquia</th>
                       <th>Tipo</th>
                       <th>Estatus</th>
                     </tr>
@@ -174,7 +176,9 @@
                       <th>id</th>
                       <th>Nombre</th>
                       <th>Primer responsable</th>
-                      <th>Ubicación</th>
+                      <th>Estado</th>
+                      <th>Municipio</th>
+                      <th>Parroquia</th>
                       <th>Tipo</th>
                       <th>Estatus</th>
                     </tr>
@@ -429,28 +433,67 @@
       </div>
     </div>
 
-    <!-- Finalizar Proyecto Modal-->
-    <div class="modal fade" id="finalizarProyectoModal" tabindex="-1" role="dialog" aria-labelledby="finalizarProyectoLabel" aria-hidden="true">
+    <!-- Finalizar Modal-->
+    <div class="modal fade" id="finalizarProyectoModal" tabindex="-1" role="dialog" aria-labelledby="finalizarProyectoModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <div class="modal-title" id="finalizarProyectoLabel">
+            <div class="modal-title" id="finalizarProyectoModalLabel">
               <h5>¿Finalizar proyecto?</h5>
-              <h6 id="finalizarProyectoTitle"></h6>
+              <h6 id="finalizarProyectoModalTitle"></h6>
             </div>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <form method="post" action="/finalizarProyecto">
-            <div class="modal-body" id="finalizarProyectoBody">
-              ¿Está seguro? ¿Respuesta definitiva?
+          
+          <form method="POST" action="/finalizarProyecto" enctype="multipart/form-data">
+            <div class="modal-body">
+              <input id="finalizarProyectoNombreProyecto" class="d-none" name="nombreProyecto"/>
+              <input id="finalizarProyectoTipo" class="d-none" name="tipo"/>
+              <input id="finalizarProyectoRefProyecto" class="d-none" name="refProyecto"/>
+
+              <label for="anoInicio">Fecha de culminación del avance</label>
+              <div class="form-row">
+                
+                <div class="form-group col-md-4">
+                  <select required id="anoInicioF" name="anoInicio" class="form-control ano">
+                    <option value='' selected>Año</option>
+                  </select>
+                </div>
+                
+                <div class="form-group col-md-4">
+                  <select required id="mesInicioF" name="mesInicio" class="form-control mes">
+                    <option value='' selected>Mes</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-md-4">
+                  <select required id="diaInicioF" name="diaInicio" class="form-control dia">
+                    <option value='' selected>Día</option>
+                  </select>
+                </div>
+                
+              </div>
+              <label for="notaAvance">Notas sobre el avance</label>
+              <textarea id="notaAvanceF" name="notaAvance" class="form-control"></textarea>
             </div>
-            <input class="d-none" id="finalizarProyecto" name="fP">
+
+            <div class="input-group" style="width: auto; margin: 1em;">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Proyecto</span>
+              </div>
+              <div class="custom-file">
+                <input multiple required type="file" class="custom-file-input" name="inputFile" id="inputFileF" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                <label class="custom-file-label" for="inputFile">Escoger Archivo PDF, Word, Excel</label>
+              </div>
+            </div>
+
             <div class="modal-footer">
-              <input type="submit" class="btn btn-danger" value="Finalizar">
               <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+              <input type="submit" class="btn btn-danger" value="Enviar y Finalizar">
             </div>
+
           </form>
         </div>
       </div>
@@ -470,47 +513,63 @@
             <table id="tableProject" class="table-bordered" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; margin:auto">
               <tr>
                 <td>Nombre:</td>
-                <td colspan="3" id="projectModalNombre"></td>
+                <td colspan="5" id="projectModalNombre"></td>
               </tr>
               <tr>
                 <td>Organización Responsable:</td>
-                <td colspan="3" id="projectModalOrgResponsable"></td>
+                <td colspan="5" id="projectModalOrgResponsable"></td>
               </tr>
               <tr>
                 <td>Responsables:</td>
-                <td colspan="3" id="projectModalResponsables"></td>
+                <td colspan="5" id="projectModalResponsables"></td>
               </tr>
               <tr>
-                <td>Ubicación geográfica:</td>
-                <td colspan="3" id="projectModalUbGeo"></td>
+                <td>Estado:</td>
+                <td colspan="1" id="projectModalEstado"></td>
+                <td>Municipio:</td>
+                <td colspan="1" id="projectModalMunicipio"></td>
+                <td>Parroquia:</td>
+                <td colspan="1" id="projectModalParroquia"></td>
+              </tr>
+              <tr>
+                <td>Direccion:</td>
+                <td colspan="5" id="projectModalDireccion"></td>
               </tr>
               <tr>
                 <td>Beneficiarios directos:</td>
-                <td colspan="3" id="projectModalBenefD"></td>
+                <td colspan="5" id="projectModalBenefD"></td>
               </tr>
               <tr>
                 <td>Beneficiarios indirectos:</td>
-                <td colspan="3" id="projectModalBenefI"></td>
+                <td colspan="5" id="projectModalBenefI"></td>
+              </tr>
+              <tr>
+                <td>Área Prioritaria:</td>
+                <td colspan="5" id="projectModalAreaP"></td>
+              </tr>
+              <tr>
+                <td>Plan de Patria:</td>
+                <td colspan="5" id="projectModalPlanP"></td>
               </tr>
               <tr>
                 <td>Tipo de Proyecto:</td>
-                <td id="projectModalTipoP"></td>
+                <td colspan="2" id="projectModalTipoP"></td>
                 <td>Duración del proyecto:</td>
-                <td id="projectModalDuracion"></td>
+                <td colspan="2" id="projectModalDuracion"></td>
               </tr>
               <tr>
                 <td>Fecha de inicio:</td>
-                <td id="projectModalFechaI"></td>
+                <td colspan="2" id="projectModalFechaI"></td>
                 <td>Fecha de fin:</td>
-                <td id="projectModalFechaF"></td>
+                <td colspan="2" id="projectModalFechaF"></td>
               </tr>
               <tr>
                 <td>Objetivo general:</td>
-                <td colspan="3" id="projectModalObjGeneral"></td>
+                <td colspan="5" id="projectModalObjGeneral"></td>
               </tr>
               <tr>
                 <td>Objetivos Específicos:</td>
-                <td colspan="3" id="projectModalObjsEspecificos"></td>
+                <td colspan="5" id="projectModalObjsEspecificos"></td>
               </tr>
               <tr id="projectModalFilesHeads">
               </tr>
@@ -522,6 +581,7 @@
             </div>
           </div>
           <div class="modal-footer">
+            <div id="btnModificar"></div>
             <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
             <!--a class="btn btn-primary" href="/logout">Salir</a-->
           </div>

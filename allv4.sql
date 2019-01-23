@@ -29,40 +29,41 @@ CREATE TABLE planesPatria(
 
 CREATE TABLE proyectos(
   id                      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  email                   VARCHAR(35) NOT NULL,
+  nombreProyecto          VARCHAR(300) NOT NULL,
   descripcionGeneral      VARCHAR(300) NOT NULL,
+  orgResponsable          VARCHAR(300) NOT NULL,
+  responsables            VARCHAR(350) NOT NULL,
   estado                  VARCHAR(300) NOT NULL,
   municipio               VARCHAR(300) NOT NULL,
   parroquia               VARCHAR(300) NOT NULL,
   direccion               VARCHAR(300) NOT NULL,
-  email                   VARCHAR(35) NOT NULL,
-  nombreProyecto          VARCHAR(300) NOT NULL,
-  orgResponsable          VARCHAR(300) NOT NULL,
-  responsables            VARCHAR(350) NOT NULL,
-  ubicacionGeografica     VARCHAR(350) NOT NULL,
   beneficiariosDirectos   VARCHAR(300) NOT NULL,
   beneficiariosIndirectos VARCHAR(300) NOT NULL,
-  tipoProyecto            VARCHAR(150) NOT NULL,
   areaAtencion            VARCHAR(150) NOT NULL,
+  areaPrioritaria         VARCHAR(350) NOT NULL,
+  planPatria              VARCHAR(350) NOT NULL,
   duracionProyecto        VARCHAR(30) NOT NULL,
   fechaInicio             DATE NOT NULL,
   fechaFin                DATE NOT NULL,
-  fechaEnvio              DATE NOT NULL,
-  fechaStatus             DATE NOT NULL,
   objGeneral              VARCHAR(300) NOT NULL,
   objsEspecificos         VARCHAR(1000) NOT NULL,
   tipo                    TINYINT UNSIGNED NOT NULL,
--- 0: Extension
--- 1: Socio Productivo
--- 2: Socio Comunitario
--- 3: Integrador
+-- 1: Extension
+-- 2: Socio Productivo
+-- 3: Socio Comunitario
+-- 4: Integrador
   status                  TINYINT UNSIGNED NOT NULL,
--- 0: Recibido
--- 1: En revision
--- 2: Aprobado
+-- 0: Devuelto para modificar
+-- 1: Recibido
+-- 2: En revision
 -- 3: Rechazado
--- 4: Devuelto para modificar
+-- 4: Aprobado
+-- 5: Finalizado
   nota                    VARCHAR(300),
   avances                 TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  fechaEnvio              DATE NOT NULL,
+  fechaStatus             DATE NOT NULL,
 
   PRIMARY KEY(id),
   INDEX fk_proyectos_email_idx (email DESC),
@@ -127,7 +128,6 @@ CREATE TABLE participantes(
   apellido      VARCHAR(50),
   cedula        VARCHAR(20),
   lugar         VARCHAR(100),
-  certificado   VARCHAR(300),
 -- cuál facultad o comunidad
   genero        VARCHAR(1),
 -- F: Femenino,
@@ -138,6 +138,7 @@ CREATE TABLE participantes(
 -- 2: Tutor
 -- 3: Comunidad
   refProyecto   INT UNSIGNED NOT NULL,
+  certificado   VARCHAR(300),
 
   PRIMARY KEY(id),
   INDEX fk_participantes_refProyecto_idx (refProyecto DESC),

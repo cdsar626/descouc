@@ -157,7 +157,9 @@
                       <th>id</th>
                       <th>Nombre</th>
                       <th>Primer responsable</th>
-                      <th>Ubicación</th>
+                      <th>Estado</th>
+                      <th>Municipio</th>
+                      <th>Parroquia</th>
                       <th>Tipo</th>
                       <th>Estatus</th>
                     </tr>
@@ -167,7 +169,9 @@
                       <th>id</th>
                       <th>Nombre</th>
                       <th>Primer responsable</th>
-                      <th>Ubicación</th>
+                      <th>Estado</th>
+                      <th>Municipio</th>
+                      <th>Parroquia</th>
                       <th>Tipo</th>
                       <th>Estatus</th>
                     </tr>
@@ -278,47 +282,63 @@
             <table id="tableProject" class="table-bordered" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; margin:auto">
               <tr>
                 <td>Nombre:</td>
-                <td colspan="3" id="projectModalNombre"></td>
+                <td colspan="5" id="projectModalNombre"></td>
               </tr>
               <tr>
                 <td>Organización Responsable:</td>
-                <td colspan="3" id="projectModalOrgResponsable"></td>
+                <td colspan="5" id="projectModalOrgResponsable"></td>
               </tr>
               <tr>
                 <td>Responsables:</td>
-                <td colspan="3" id="projectModalResponsables"></td>
+                <td colspan="5" id="projectModalResponsables"></td>
               </tr>
               <tr>
-                <td>Ubicación geográfica:</td>
-                <td colspan="3" id="projectModalUbGeo"></td>
+                  <td>Estado:</td>
+                  <td colspan="1" id="projectModalEstado"></td>
+                  <td>Municipio:</td>
+                  <td colspan="1" id="projectModalMunicipio"></td>
+                  <td>Parroquia:</td>
+                  <td colspan="1" id="projectModalParroquia"></td>
               </tr>
+              <tr>
+                  <td>Direccion:</td>
+                  <td colspan="5" id="projectModalDireccion"></td>
+                </tr>
               <tr>
                 <td>Beneficiarios directos:</td>
-                <td colspan="3" id="projectModalBenefD"></td>
+                <td colspan="5" id="projectModalBenefD"></td>
               </tr>
               <tr>
                 <td>Beneficiarios indirectos:</td>
-                <td colspan="3" id="projectModalBenefI"></td>
+                <td colspan="5" id="projectModalBenefI"></td>
+              </tr>
+              <tr>
+                <td>Área Prioritaria:</td>
+                <td colspan="5" id="projectModalAreaP"></td>
+              </tr>
+              <tr>
+                <td>Plan de Patria:</td>
+                <td colspan="5" id="projectModalPlanP"></td>
               </tr>
               <tr>
                 <td>Tipo de Proyecto:</td>
-                <td id="projectModalTipoP"></td>
+                <td colspan="2" id="projectModalTipoP"></td>
                 <td>Duración del proyecto:</td>
-                <td id="projectModalDuracion"></td>
+                <td colspan="2" id="projectModalDuracion"></td>
               </tr>
               <tr>
                 <td>Fecha de inicio:</td>
-                <td id="projectModalFechaI"></td>
+                <td colspan="2" id="projectModalFechaI"></td>
                 <td>Fecha de fin:</td>
-                <td id="projectModalFechaF"></td>
+                <td colspan="2" id="projectModalFechaF"></td>
               </tr>
               <tr>
                 <td>Objetivo general:</td>
-                <td colspan="3" id="projectModalObjGeneral"></td>
+                <td colspan="5" id="projectModalObjGeneral"></td>
               </tr>
               <tr>
                 <td>Objetivos Específicos:</td>
-                <td colspan="3" id="projectModalObjsEspecificos"></td>
+                <td colspan="5" id="projectModalObjsEspecificos"></td>
               </tr>
               <tr id="projectModalFilesHeads">
               </tr>

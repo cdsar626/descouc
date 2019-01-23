@@ -81,24 +81,122 @@ $(document).ready(function() {
 
 
 
-  // Ubicacion Select2
-  $.fn.select2.defaults.set('theme', 'bootstrap4')
+  // Select2 Ubicacion
+  $.fn.select2.defaults.set('theme', 'bootstrap4');
+  let estados;
+  let municipios;
+  let parroquias;
 
+  $.ajax({
+    method: 'get',
+    url: '/getEstados',
+  }).done(function (res) {
+    estados = res.data;
+    estados.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
+    estados.unshift({id:'', text: 'Estado',selected: true, disabled: true});
+    console.log(estados);
+    $('#ubiEstado').html('').select2({
+      placeholder: 'Estado',
+      data: estados,
+      width: '100%',
+    });
+  })
+  
+// On Estado change carga los municipios correspondientes
   $('#ubiEstado').select2({
     placeholder: 'Estado',
     width: '100%',
+  }).change(function () {
+    console.log(this.value);
+    let id = this.value;
+    $('#estadoText').val(estados.find(x => x.id === parseInt(id)).nombre);
+    $.ajax({
+      method: 'get',
+      url: '/getMunicipios?estado=' + this.value,
+    }).done(function (res) {
+      municipios = res.data;
+      municipios.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
+      municipios.unshift({id:'', text: 'Municipio',selected: true, disabled: true});
+      console.log(municipios)
+      $('#ubiParroquia').html('');
+      $('#ubiMunicipio').html('').prop('disabled', false).select2({
+        data: municipios,
+        placeholder: 'Municipio',
+        width: '100%',
+      })
+    })
   });
 
+// On Municipio change carga las parroquias correspondientes
   $('#ubiMunicipio').select2({
     placeholder: 'Municipio',
     width: '100%',
+  }).change(function () {
+    console.log(this.value);
+    let id = this.value;
+    $('#municipioText').val(municipios.find(x => x.id === parseInt(id)).nombre);
+    $.ajax({
+      method: 'get',
+      url: '/getParroquias?municipio=' + this.value,
+    }).done(function (res) {
+      parroquias = res.data;
+      parroquias.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
+      parroquias.unshift({id:'', text: 'Parroquia',selected: true, disabled: true});
+      console.log(parroquias)
+      $('#ubiParroquia').html('').prop('disabled', false).select2({
+        data: parroquias,
+        placeholder: 'Parroquia',
+        width: '100%',
+      })
+    })
   });
 
   $('#ubiParroquia').select2({
     placeholder: 'Parroquia',
     width: '100%',
+  }).change(function () {
+    let id = this.value;
+    $('#parroquiaText').val(parroquias.find(x => x.id === parseInt(id)).nombre);
   });
 
+  // Select2 Areas Prioritarias
+  let areasP;
+
+  $.ajax({
+    method: 'get',
+    url: '/getAreasPrioritarias',
+  }).done(function (res) {
+    areasP = res.data;
+    areasP.map(x => x.text = x.descripcion); // para cumplir con la estructura de Select2
+    areasP.map(x => x.id = x.text);
+    areasP.unshift({id:'', text: 'Áreas Prioritarias',selected: true, disabled: true});
+    console.log(areasP);
+    $('#areaPrioritaria').select2({
+      placeholder: 'Áreas Prioritarias',
+      data: areasP,
+      width: '100%',
+    });
+  })
+
+  // Select2 Planes de Patria
+
+  let planesP;
+
+  $.ajax({
+    method: 'get',
+    url: '/getPlanesPatria',
+  }).done(function (res) {
+    planesP = res.data;
+    planesP.map(x => x.text = x.descripcion); // para cumplir con la estructura de Select2
+    planesP.map(x => x.id = x.text);
+    planesP.unshift({id:'', text: 'Plan de Patria',selected: true, disabled: true});
+    console.log(planesP);
+    $('#planesPatria').select2({
+      placeholder: 'Plan de Patria',
+      data: planesP,
+      width: '100%',
+    });
+  })
     
   // Coloca el nombre del archivo en el campo de inputFile cuando cambia
   $('#inputFile').change(function(e) {
@@ -114,12 +212,12 @@ $(document).ready(function() {
   document.addEventListener('invalid', (function(){
     return function(e){
       //prevent the browser from showing default error bubble/ hint
-      e.preventDefault();
+      //e.preventDefault();
       // optionally fire off some custom validation handler
       // myvalidationfunction();
       let errorPlace = document.getElementById('errorPlace');
       errorPlace.style.color = 'red'
-      errorPlace.innerHTML = '<b>Todos los campos son requeridos.</b>';
+      errorPlace.innerHTML = '<b>Todos los campos son requeridos (mínimo 1 documento).</b>';
     };
   })(), true);
   

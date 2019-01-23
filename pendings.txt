@@ -1,27 +1,27 @@
--Cambiar estatuses
-  Recibido
-  En revision
-  Aprobado
-  Rechazado
-  Devuelto para modificar
 -Poder modificar Proyecto antes de entrar a revision
--Añadir etiqueta a cada documento
--Cambiar tipos de Proyectos
-  Extension
-  Socio Productivo
-  Socio Comunitario
-  Integrador
 -Añadir estadisticas
   N° proyectos por estatus, facultad, comunidad
   N° participantes por genero, edad, facultad
--Agregar casilla para ver documento de cierre en la lista de proyectos
--Separar avance de cierre de los avances parciales
--Agregar campos al registro de proyectos
-#  Resumen (Descripción general)
-  Comunidad: Estado -> Municipio -> Parroquira -> [Texto]
-  Areas Prioritarias
-  Plan de Patria
-#-Agregar Pagina en Desco para agregar/modificar Areas prioritarias, Planes, etc.
--Generar constancias de los participantes
+X-Agregar casilla para ver documento de cierre en la lista de proyectos
 -Buscar participantes por cedula y mostrar proyectos asociados + constancia
--Mostrar fecha de envío de proyecto y del último estatus del proyecto
+#-Separar avance de cierre de los avances parciales
+#Cambiar estatuses
+#  Recibido
+#  En revision
+#  Aprobado
+#  Rechazado
+#  Devuelto para modificar
+#Añadir etiqueta a cada documento
+#-Cambiar tipos de Proyectos
+#  Extension
+#  Socio Productivo
+#  Socio Comunitario
+#  Integrador
+#-Agregar campos al registro de proyectos
+#  Resumen (Descripción general)
+#  Comunidad: Estado -> Municipio -> Parroquira -> [Texto]
+#  Areas Prioritarias
+#  Plan de Patria
+#-Agregar Pagina en Desco para agregar/modificar Areas prioritarias, Planes, etc.
+#-Generar constancias de los participantes
+#-Mostrar fecha de envío de proyecto y del último estatus del proyecto
