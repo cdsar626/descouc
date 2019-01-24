@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>DESCO - Estadísticas</title>
+
+    <!-- Bootstrap core CSS-->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Page level plugin CSS-->
+    <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin.css" rel="stylesheet">
+
+  </head>
+
+  <body id="page-top">
+
+    <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+
+      <a class="navbar-brand mr-1" href="index.html">Start Bootstrap</a>
+
+      <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
+        <i class="fas fa-bars"></i>
+      </button>
+
+    </nav>
+
+    <div id="wrapper">
+
+      <!-- Sidebar -->
+      <ul class="sidebar navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Volver a Inicio</span>
+          </a>
+        </li>
+      </ul>
+
+      <div id="content-wrapper">
+
+        <h1 class="display-1">Estadísticas</h1>
+        <div class="container-fluid d-flex justify-content-around">
+
+          <!-- Page Content -->
+          <div id="nProyectos">
+            <span>Total de proyectos: </span><span id="nProj"></span>
+            <h3>Número de proyectos por:</h3>
+            <div id="estatusProj">
+              <h5><b>Estatus</b></h5>
+              <span>Devuelto para modificar: </span><span id="nProjDevuelto"></span><br>
+              <span>Recibido: </span><span id="nProjRecibido"></span><br>
+              <span>En revision: </span><span id="nProjRevision"></span><br>
+              <span>Rechazado: </span><span id="nProjRechazado"></span><br>
+              <span>Aprobado: </span><span id="nProjAprobado"></span><br>
+              <span>Finalizado: </span><span id="nProjFinalizado"></span><br>
+            </div>
+            <div id="facultadProj">
+              <h5><b>Facultad</b></h5>
+              <span>Ciencias Jurídicas y Políticas (FCJP): </span><span id="nProjFCJP"></span><br>
+              <span>Ciencias de la Salud (FCS): </span><span id="nProjFCS"></span><br>
+              <span>Ciencias Económicas y Sociales (FaCES): </span><span id="nProjFaCES"></span><br>
+              <span>Ciencias de la Educación (FaCE): </span><span id="nProjFaCE"></span><br>
+              <span>Experimental de Ciencia y Tecnología (FaCyT): </span><span id="nProjFaCyT"></span><br>
+              <span>Ingeniería: </span><span id="nProjIng"></span><br>
+              <span>Odontología: </span><span id="nProjOdont"></span><br>
+            </div>
+          </div>
+          <div id="nParticipantes">
+            <span>Total de participantes: </span><span id="nPart"></span>
+            <h3>Número de participantes por:</h3>
+            <div id="generoPart">
+              <h5><b>Genero</b></h5>
+              <span>Masculino: </span><span id="nPartMasc"></span><br>
+              <span>Femenino: </span><span id="nPartFem"></span><br>
+              <span>Otros: </span><span id="nPartOtros"></span><br>
+            </div>
+            <div id="edadPart">
+              <h5><b>Edad</b></h5>
+              <span>10-20: </span><span id="nPartRango1"></span><br>
+              <span>20-30: </span><span id="nPartRango2"></span><br>
+              <span>30-40: </span><span id="nPartRango3"></span><br>
+            </div>
+            <div id="facultadPart">
+              <h5><b>Facultad</b></h5>
+              <span>Ciencias Jurídicas y Políticas (FCJP): </span><span id="nPartFCJP"></span><br>
+              <span>Ciencias de la Salud (FCS): </span><span id="nPartFCS"></span><br>
+              <span>Ciencias Económicas y Sociales (FaCES): </span><span id="nPartFaCES"></span><br>
+              <span>Ciencias de la Educación (FaCE): </span><span id="nPartFaCE"></span><br>
+              <span>Experimental de Ciencia y Tecnología (FaCyT): </span><span id="nPartFaCyT"></span><br>
+              <span>Ingeniería: </span><span id="nPartIng"></span><br>
+              <span>Odontología: </span><span id="nPartOdont"></span><br>
+
+            </div>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+        <!-- Sticky Footer -->
+        <footer class="sticky-footer">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright © DESCO 2018</span>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+      <!-- /.content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <a class="btn btn-primary" href="login.html">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin.min.js"></script>
+
+    <script src="js/desco-reactive-stats.js"></script>
+
+  </body>
+
+</html>

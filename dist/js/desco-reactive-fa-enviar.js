@@ -72,32 +72,32 @@ $(document).ready(function() {
     }
     $(diasSelect).append($(document.createElement('option')).text('----------------------').prop({disabled:true}));
     $(diasSelect).append($(document.createElement('option')).text('Incierto').val(0) );
-    console.log(`${diasSelect.value}-${this.value}-${$('#anoFin').val()}`);
-    console.log(diasSelect.value);
-    console.log(this.value);
-    console.log($('#anoFin').val())
-    console.log(new Date($('#anoFin').val(), this.value-1, diasSelect.value))
   })
 
 
 
   // Select2 Ubicacion
   $.fn.select2.defaults.set('theme', 'bootstrap4');
-  let estados;
+  let allEstados;
+  let allMunicipios;
+  let allParroquias;
   let municipios;
   let parroquias;
 
   $.ajax({
     method: 'get',
-    url: '/getEstados',
+    url: '/getAllPlaces',
   }).done(function (res) {
-    estados = res.data;
-    estados.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
-    estados.unshift({id:'', text: 'Estado',selected: true, disabled: true});
-    console.log(estados);
+    console.log(res.data);
+    allEstados = res.data.estados;
+    allMunicipios = res.data.municipios;
+    allParroquias = res.data.parroquias;
+    allEstados.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
+    allEstados.unshift({id:'', text: 'Estado',selected: true, disabled: true});
+    console.log(allMunicipios);
     $('#ubiEstado').html('').select2({
       placeholder: 'Estado',
-      data: estados,
+      data: allEstados,
       width: '100%',
     });
   })
@@ -109,21 +109,15 @@ $(document).ready(function() {
   }).change(function () {
     console.log(this.value);
     let id = this.value;
-    $('#estadoText').val(estados.find(x => x.id === parseInt(id)).nombre);
-    $.ajax({
-      method: 'get',
-      url: '/getMunicipios?estado=' + this.value,
-    }).done(function (res) {
-      municipios = res.data;
-      municipios.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
-      municipios.unshift({id:'', text: 'Municipio',selected: true, disabled: true});
-      console.log(municipios)
-      $('#ubiParroquia').html('');
-      $('#ubiMunicipio').html('').prop('disabled', false).select2({
-        data: municipios,
-        placeholder: 'Municipio',
-        width: '100%',
-      })
+    $('#estadoText').val(allEstados.find(x => x.id === parseInt(id)).nombre);
+    municipios = allMunicipios.filter(x => x.estado == parseInt(id));
+    municipios.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
+    municipios.unshift({id:'', text: 'Municipio',selected: true, disabled: true});
+    $('#ubiParroquia').html('');
+    $('#ubiMunicipio').html('').prop('disabled', false).select2({
+      data: municipios,
+      placeholder: 'Municipio',
+      width: '100%',
     })
   });
 
@@ -132,22 +126,15 @@ $(document).ready(function() {
     placeholder: 'Municipio',
     width: '100%',
   }).change(function () {
-    console.log(this.value);
     let id = this.value;
     $('#municipioText').val(municipios.find(x => x.id === parseInt(id)).nombre);
-    $.ajax({
-      method: 'get',
-      url: '/getParroquias?municipio=' + this.value,
-    }).done(function (res) {
-      parroquias = res.data;
-      parroquias.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
-      parroquias.unshift({id:'', text: 'Parroquia',selected: true, disabled: true});
-      console.log(parroquias)
-      $('#ubiParroquia').html('').prop('disabled', false).select2({
-        data: parroquias,
-        placeholder: 'Parroquia',
-        width: '100%',
-      })
+    parroquias = allParroquias.filter(x => x.municipio == parseInt(id));
+    parroquias.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
+    parroquias.unshift({id:'', text: 'Parroquia',selected: true, disabled: true});
+    $('#ubiParroquia').html('').prop('disabled', false).select2({
+      data: parroquias,
+      placeholder: 'Parroquia',
+      width: '100%',
     })
   });
 

@@ -3,7 +3,7 @@ const multer = require('multer');
 const pool = require('./bd.js');
 const pdfUC = require('./pdfUC');
 const app = express.Router();
-
+const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // Elije la carpeta donde guardar segun el tipo de proyecto
@@ -133,6 +133,18 @@ app.get('/getDocsFromProject', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.get('/getAllPlaces', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2, 3)) {
+    let data = {};
+    data.estados = await pool.query('SELECT * FROM estados;');
+    data.municipios = await pool.query('SELECT * FROM municipios');
+    data.parroquias = await pool.query('SELECT * FROM parroquias');
+    res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/getEstados', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 2, 3)) {
     let data;
@@ -211,6 +223,46 @@ app.get('/getProyectos', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+function differenceYears(date2, date1){
+  return Math.floor((((date2) - date1) / _MS_PER_DAY) / 365);
+}
+
+app.get('/getStats', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2, 3)) {
+    let data = {};
+    let allPart = await pool.query('SELECT * FROM participantes');
+    let allProj = await pool.query('SELECT * FROM proyectos');
+
+    data.nProj = allProj.length;
+    data.devuelto = allProj.filter(x => x.status == 0).length;
+    data.recibido = allProj.filter(x => x.status == 1).length;
+    data.revision = allProj.filter(x => x.status == 2).length;
+    data.rechazado = allProj.filter(x => x.status == 3).length;
+    data.aprobado = allProj.filter(x => x.status == 4).length;
+    data.finalizado = allProj.filter(x => x.status == 5).length;
+
+    data.nPart = allPart.length;
+    data.masculino = allPart.filter(x => x.genero == 'M').length;
+    data.femenino = allPart.filter(x => x.genero == 'F').length;
+    data.otro = allPart.filter(x => x.genero == 'O').length;
+    data.FCJP = allPart.filter(x => x.lugar == 'FCJP').length;
+    data.FCS = allPart.filter(x => x.lugar == 'FCS').length;
+    data.FaCES = allPart.filter(x => x.lugar == 'FaCES').length;
+    data.FaCE = allPart.filter(x => x.lugar == 'FaCE').length;
+    data.FaCyT = allPart.filter(x => x.lugar == 'FaCyT').length;
+    data.Ingenieria = allPart.filter(x => x.lugar == 'Ingenieria').length;
+    data.Odontologia = allPart.filter(x => x.lugar == 'Odontologia').length;
+
+    data.rango1 = allPart.filter(x => 10 <= differenceYears(new Date, x.nacimiento) && differenceYears(new Date, x.nacimiento) < 20).length;
+    data.rango2 = allPart.filter(x => 20 <= differenceYears(new Date, x.nacimiento) && differenceYears(new Date, x.nacimiento) < 30).length;
+    data.rango3 = allPart.filter(x => 30 <= differenceYears(new Date, x.nacimiento) && differenceYears(new Date, x.nacimiento) < 40).length;
+
+    res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/getUsers', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {
     let data = await pool.query('SELECT * FROM usuarios');
@@ -275,6 +327,14 @@ app.get('/success', asyncMiddleware( async (req, res) => {
     } else {
       send(res, 'desco/success.html');
     }
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.get('/stats', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 3, 2)) {
+    send(res, 'stats.html');
   } else {
     forbid(res);
   }
@@ -414,6 +474,103 @@ app.post('/editPlanPatria', asyncMiddleware( async (req, res) => {
     forbid(res);
   }
 }) );
+
+let fileFieldsFromEditProject = [
+  {name: 'file1', maxCount: 1},
+  {name: 'file2', maxCount: 1},
+  {name: 'file3', maxCount: 1},
+  {name: 'file4', maxCount: 1},
+  {name: 'file5', maxCount: 1},
+]
+
+app.post('/editProject', asyncMiddleware(async (req, res) => {
+  if(await isValidSessionAndRol(req, 3)) { // Si es valida la sesion y rol
+    await upload.fields(fileFieldsFromEditProject)(req, res, async function(err) { // Sube los archivos
+      if (!(await verificarAutoridad(req, req.body.id))) {
+        res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+        throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
+      }
+      if(err) {
+        return res.end('Error al subir archivos. Esto puede ocurrir si algun archivo es mayor a 5MB.');
+      } else {
+        let proyData = [
+          req.body.nombreProyecto,
+          req.body.descripcionGeneral,
+          req.body.orgResponsable,
+          req.body.responsables,
+          req.body.estadoText,
+          req.body.municipioText,
+          req.body.parroquiaText,
+          req.body.direccion,
+          req.body.beneficiariosDirectos,
+          req.body.beneficiariosIndirectos,
+          req.body.areaAtencion,
+          req.body.areaPrioritaria,
+          req.body.planesPatria,
+          req.body.duracionProyecto,
+          `${req.body.anoInicio}-${req.body.mesInicio}-${req.body.diaInicio}`,//fecha inicio
+          `${req.body.anoFin}-${req.body.mesFin}-${req.body.diaFin}`,//fechafin
+          req.body.objGeneral,
+          req.body.objsEspecificos,
+          req.body.tipo,
+          /* ^ tipo-------------------------
+          /* 1: Extension
+          /* 2: Socio Productivo
+          /* 3: Socio Comunitario
+          /* 4: Integrador
+          /* ------------------------------*/
+          //1,
+          /* ^ status-----------------------
+          /* 0: Devuelto para modificar
+          /* 1: Recibido
+          /* 2: En revision
+          /* 3: Rechazado
+          /* 4: Aprobado
+          /* 5: Finalizado
+          /* ------------------------- */
+          //nota
+          //avances -> 0
+          //fecheEnvio
+          //fechaStatus
+          req.body.id,// id
+        ]
+        console.log(req.body);
+        await pool.query(`UPDATE proyectos
+        SET nombreProyecto=?, descripcionGeneral=?, orgResponsable=?,
+        responsables=?, estado=?, municipio=?, parroquia=?, direccion=?,
+        beneficiariosDirectos=?, beneficiariosIndirectos=?, areaAtencion=?,
+        areaPrioritaria=?, planPatria=?, duracionProyecto=?, fechaInicio=?,
+        fechaFin=?, objGeneral=?, objsEspecificos=?, tipo=?
+        WHERE id=?`, proyData);
+        if(req.body.nuevosDocs) {
+          await pool.query('DELETE FROM documentos WHERE refProyecto=?', [req.body.id]);
+          for(let i = 1; i <= 5; i++) {
+            if(req.files['file'+i] && req.body['tagDoc'+i]){
+              let docData = [
+                //id: 0: auto
+                req.body.id,
+                //refAvance: NULL
+                req.files['file'+i][0].path,
+                req.body['tagDoc'+i],
+                (new Date()).toISOString().split('T')[0], // Obtiene solo la fecha en formato yyyy-mm-dd
+                //tipo: inicio, actualizado, etc.
+                i, //numero
+              ];
+              console.log(docData);
+              await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,?,1,?)', docData);
+              await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,?,2,?)', docData);
+            }
+          }
+        }
+        res.redirect('/success');
+      }
+    });
+
+
+  } else {
+    forbid(res);
+  }
+}))
 
 app.post('/editUser', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 1)) {

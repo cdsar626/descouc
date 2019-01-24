@@ -121,7 +121,7 @@ INSERT INTO parroquias (id, municipio, nombre) VALUES
 (30, 15, "Los Guayos Valencia"),
 (31, 16, "Miranda"),
 (32, 17, "Montalbán"),
-(33, 18, "Urbanización Naguanagua"),
+(33, 18, "Urbana Naguanagua"),
 (34, 19, "Bartolomé Salóm"),
 (35, 19, "Democracia"),
 (36, 19, "Fraternidad"),

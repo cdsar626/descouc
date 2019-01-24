@@ -11,7 +11,7 @@ CREATE TABLE usuarios(
 -- 1: Admin
 -- 2: Desco
 -- 3: Facultad
-  facultad  VARCHAR(15)
+  facultad  VARCHAR(30)
 );
 
 CREATE TABLE areasPrioritarias(
@@ -132,6 +132,7 @@ CREATE TABLE participantes(
   genero        VARCHAR(1),
 -- F: Femenino,
 -- M: Masculino,
+-- O: Otro,
   nacimiento    DATE NOT NULL,
   tipo       TINYINT UNSIGNED NOT NULL,
 -- 1: Alumno

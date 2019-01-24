@@ -1,9 +1,9 @@
--Poder modificar Proyecto antes de entrar a revision
--Añadir estadisticas
+#-Añadir estadisticas
   N° proyectos por estatus, facultad, comunidad
-  N° participantes por genero, edad, facultad
+#  N° participantes por genero, edad, facultad
 X-Agregar casilla para ver documento de cierre en la lista de proyectos
 -Buscar participantes por cedula y mostrar proyectos asociados + constancia
+#-Poder modificar Proyecto antes de entrar a revision
 #-Separar avance de cierre de los avances parciales
 #Cambiar estatuses
 #  Recibido

@@ -341,7 +341,7 @@ $(document).ready(function() {
               if (filesByTipo[4]) finalIds = uniqueArrayDocsObjects(filesByTipo[4]);
               console.log(avancesIds);
               avancesHtml = avancesHtml + `
-                <h6>Avance ${i+1} <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
+                <h6>Avance ${ (i+1) != res.data.length ? i+1 : 'Final' } <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
                 <div>
                   
                 </div>
