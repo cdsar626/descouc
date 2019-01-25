@@ -109,9 +109,9 @@ $(document).ready(function() {
 
   function estado2Num(estado) {
     switch (estado) {
-      case 'Aragua': return 0;
+      case 'Cojedes': return 0;
       case 'Carabobo': return 1;
-      case 'Cojedes': return 2;
+      case 'Aragua': return 2;
     }
   }
 });

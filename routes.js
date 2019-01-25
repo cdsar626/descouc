@@ -232,6 +232,29 @@ app.get('/getStats', asyncMiddleware( async (req, res) => {
     let data = {};
     let allPart = await pool.query('SELECT * FROM participantes');
     let allProj = await pool.query('SELECT * FROM proyectos');
+    let allProjWithFacs = await pool.query(`
+    SELECT proyectos.id, proyectos.email, usuarios.facultad 
+    FROM proyectos INNER JOIN usuarios 
+    ON proyectos.email=usuarios.email;`);
+    function uniqueArrayDocsObjects( ar ) {
+      var j = {};
+    
+      ar.forEach( function(v) {
+        j[v.facultad+ '::' + typeof v.facultad] = v.facultad;
+      });
+    
+      return Object.keys(j).map(function(v){
+        return j[v];
+      });
+    }
+    // Obtenemos un arreglo con los distintos tipos de facultad
+    let allFacs = uniqueArrayDocsObjects(allProjWithFacs);
+    let nProjectsByFac = {};
+    // Por cada tipo de facultad armamos un arreglo con todos los proyectos correspondientes a 
+    // esa facultad y retornamos su longitud
+    allFacs.forEach( x => {
+      nProjectsByFac[x] = allProjWithFacs.filter(y => y.facultad == x).length;
+    })
 
     data.nProj = allProj.length;
     data.devuelto = allProj.filter(x => x.status == 0).length;
@@ -240,6 +263,7 @@ app.get('/getStats', asyncMiddleware( async (req, res) => {
     data.rechazado = allProj.filter(x => x.status == 3).length;
     data.aprobado = allProj.filter(x => x.status == 4).length;
     data.finalizado = allProj.filter(x => x.status == 5).length;
+    data.nProjectsByFac = nProjectsByFac;
 
     data.nPart = allPart.length;
     data.masculino = allPart.filter(x => x.genero == 'M').length;

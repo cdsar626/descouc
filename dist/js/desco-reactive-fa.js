@@ -235,10 +235,10 @@ $(document).ready(function() {
         if(status2Num(rowData.status) >= 4) {
           fields.pluses.innerHTML = fields.pluses.innerHTML + 
           `<div class="text-right text-white">
-            <a id="showParticipantes" class="btn btn-info 2ndModal" ${status2Num(rowData.status) == 4 ? 'style="float: left; margin-right: 5px;"' : ''}>Ver participantes</a>
-            <a id="showAvances" class="btn btn-info 2ndModal" ${status2Num(rowData.status) == 4 ? 'style="float: left; margin-right: 5px;"' : ''}>Ver avances</a>
-            ${status2Num(rowData.status) == 4 ? '<a id="addAvances" class="btn btn-primary 2ndModal">Añadir avances</a>' : ''}
-            ${status2Num(rowData.status) == 4 ? '<a id="addParticipantes" class="btn btn-primary 2ndModal">Añadir participantes</a>' : ''}
+          ${status2Num(rowData.status) == 4 ? '<a id="addParticipantes" class="btn btn-primary 2ndModal" style="float: left; margin-right: 5px;">Añadir participantes</a>' : ''}
+          ${status2Num(rowData.status) == 4 ? '<a id="addAvances" class="btn btn-primary 2ndModal" style="float: left; margin-right: 5px;">Añadir avances</a>' : ''}
+            <a id="showParticipantes" class="btn btn-info 2ndModal">Ver participantes</a>
+            <a id="showAvances" class="btn btn-info 2ndModal">Ver avances</a>
           </div>
           `;
           if (status2Num(rowData.status) == 4  && rowData.avances > 0) {
@@ -391,14 +391,20 @@ $(document).ready(function() {
                 <label class="input-group-text" for="lugar">Facultad</label>
               </div>
               <select required name="lugar" class="custom-select" id="lugar">
-              <option value='' selected disabled>Escoge...</option>
-              <option value="FCJP">Ciencias Jurídicas y Políticas (FCJP)</option>
-              <option value="FCS">Ciencias de la Salud (FCS)</option>
-              <option value="FaCES">Ciencias Económicas y Sociales (FaCES)</option>
-              <option value="FaCE">Ciencias de la Educación (FaCE)</option>
-              <option value="FaCyT">Experimental de Ciencia y Tecnología (FaCyT)</option>
-              <option value="Ingenieria">Ingeniería</option>
-              <option value="Odontologia">Odontología</option>
+                <option value='' selected disabled>Escoge...</option>
+                <option value='' disabled>-- Carabobo --</option>
+                <option value="FCJP">Ciencias Jurídicas y Políticas (FCJP)</option>
+                <option value="FCS">Ciencias de la Salud (FCS)</option>
+                <option value="FaCES">Ciencias Económicas y Sociales (FaCES)</option>
+                <option value="FaCE">Ciencias de la Educación (FaCE)</option>
+                <option value="FaCyT">Experimental de Ciencia y Tecnología (FaCyT)</option>
+                <option value="Ingenieria">Ingeniería</option>
+                <option value="Odontologia">Odontología</option>
+                <option value='' disabled>-- Aragua --</option>
+                <option value="Aragua_FCS">Ciencias de la Salud (FCS)</option>
+                <option value="Aragua_FaCES">Ciencias Económicas y Sociales (FaCES)</option>
+                <option value='' disabled>-- Cojedes --</option>
+                <option value="Cojedes_FCS">Ciencias de la Salud (FCS)</option>
               </select>
             </div>
             `;
@@ -553,6 +559,7 @@ $(document).ready(function() {
     }
   }
 
+  // Obtiene un arreglo con los valores únicos de v.refAvance dentro de un arreglo de objetos
   function uniqueArrayDocsObjects( ar ) {
     var j = {};
   
@@ -579,7 +586,15 @@ $(document).ready(function() {
     } else {
       campoInputFile.innerText = $('#inputFile').val().replace('C:\\fakepath\\','');
     }
+  })
 
+  $('#inputFileF').change(function(e) {
+    let campoInputFile = document.getElementsByClassName('custom-file-label')[1];
+    if(document.getElementById('inputFileF').files.length > 1) {
+      campoInputFile.innerText = `${document.getElementById('inputFileF').files.length} archivos seleccionados.`
+    } else {
+      campoInputFile.innerText = $('#inputFileF').val().replace('C:\\fakepath\\','');
+    }
   })
 
 

@@ -107,10 +107,9 @@ $(document).ready(function() {
     placeholder: 'Estado',
     width: '100%',
   }).change(function () {
-    console.log(this.value);
     let id = this.value;
     $('#estadoText').val(allEstados.find(x => x.id === parseInt(id)).nombre);
-    municipios = allMunicipios.filter(x => x.estado == parseInt(id));
+    municipios = allMunicipios.filter(x => x.estado === parseInt(id));
     municipios.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
     municipios.unshift({id:'', text: 'Municipio',selected: true, disabled: true});
     $('#ubiParroquia').html('');
@@ -157,7 +156,6 @@ $(document).ready(function() {
     areasP.map(x => x.text = x.descripcion); // para cumplir con la estructura de Select2
     areasP.map(x => x.id = x.text);
     areasP.unshift({id:'', text: 'Áreas Prioritarias',selected: true, disabled: true});
-    console.log(areasP);
     $('#areaPrioritaria').select2({
       placeholder: 'Áreas Prioritarias',
       data: areasP,
@@ -177,24 +175,33 @@ $(document).ready(function() {
     planesP.map(x => x.text = x.descripcion); // para cumplir con la estructura de Select2
     planesP.map(x => x.id = x.text);
     planesP.unshift({id:'', text: 'Plan de Patria',selected: true, disabled: true});
-    console.log(planesP);
     $('#planesPatria').select2({
       placeholder: 'Plan de Patria',
       data: planesP,
       width: '100%',
     });
   })
-    
-  // Coloca el nombre del archivo en el campo de inputFile cuando cambia
-  $('#inputFile').change(function(e) {
-    let campoInputFile = document.getElementsByClassName('custom-file-label')[0];
-    if(document.getElementById('inputFile').files.length > 1) {
-      campoInputFile.innerText = `${document.getElementById('inputFile').files.length} archivos seleccionados.`
-    } else {
-      campoInputFile.innerText = $('#inputFile').val().replace('C:\\fakepath\\','');
-    }
 
-  })
+  // Coloca el nombre del archivo en el campo de file1 cuando cambia
+  function showNameFileOnChange(id) {
+    $('#'+id).change(function(e) {
+      let campoInputFile = document.getElementsByClassName('custom-file-label')[id[4]-1];
+      if(document.getElementById(id).files.length > 1) {
+        campoInputFile.innerText = `${document.getElementById(id).files.length} archivos seleccionados.`
+      } else {
+        campoInputFile.innerText = $('#'+id).val().replace('C:\\fakepath\\','');
+        $('#tagDoc'+(id[4])).val( $('#'+id).val().replace('C:\\fakepath\\','').split('.')[0] );
+      }
+    })
+  }
+  
+  showNameFileOnChange('file1');
+  showNameFileOnChange('file2');
+  showNameFileOnChange('file3');
+  showNameFileOnChange('file4');
+  showNameFileOnChange('file5');
+
+  
   
   document.addEventListener('invalid', (function(){
     return function(e){

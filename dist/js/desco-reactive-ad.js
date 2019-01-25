@@ -20,13 +20,9 @@ $(document).ready(function() {
       }
     },
     rowCallback: function(row, data) {
-      if (data.rol == 'Administrador'){
-        $('td:eq(1)', row).html('Administrador');
-      } else if (data.rol == 'DESCO'){
-        $('td:eq(1)', row).html('DESCO');
-      } else if (data.rol == 'Facultad'){
-        $('td:eq(1)', row).html('Facultad');
-      }
+        $('td:eq(1)', row).html(data.rol);
+        $('td:eq(2)', row).html(facultad2Text(data.facultad));
+
     },
   });
 
@@ -82,6 +78,30 @@ $(document).ready(function() {
   
   function rolStr2Num(str) {
     return str == 'Administrador' ? 1 : str == 'DESCO' ? 2 : 3;
+  }
+
+  function facultad2Text(fac) {
+    switch (fac) {
+    case "FCJP": return 'Ciencias Jurídicas y Políticas (FCJP)';
+    case "FCS": return 'Ciencias de la Salud (FCS)';
+    case "FaCES": return 'Ciencias Económicas y Sociales (FaCES)';
+    case "FaCE": return 'Ciencias de la Educación (FaCE)';
+    case "FaCyT": return 'Experimental de Ciencia y Tecnología (FaCyT)';
+    case "Ingenieria": return 'Ingeniería';
+    case "Odontologia": return 'Odontología';
+    case "Aragua_FCS": return 'Aragua - Ciencias de la Salud (FCS)';
+    case "Aragua_FaCES": return 'Aragua - Ciencias Económicas y Sociales (FaCES)';
+    case "Cojedes_FCS": return 'Ciencias de la Salud (FCS)';
+
+
+
+
+
+
+
+
+
+    }
   }
 
 });

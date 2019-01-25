@@ -217,7 +217,7 @@ $(document).ready(function () {
         // Si está aprobado & no ha subido el aval
         if (status2Num(rowData.status) >= 4 && !(filesByTipo.find(x => x[0].tipo == 3)) ) { // Falta modificar para que ingrese aval, no cualquier archivo
           plusesHtml = plusesHtml +
-            `<span>Subir oficio de aval.</span>
+            `<span>Subir aval de aprobación.</span>
             <form method="post" action="/subirAval" enctype="multipart/form-data">
           <input class="d-none" type="text" name="nombreProyecto" value="${rowData.nombreProyecto}"/>
           <input class="d-none" name="tipo" value="${tipo2Num(rowData.tipo)}"/>

@@ -15,6 +15,10 @@ $(document).ready(function() {
   fields.nProjFaCyT = document.getElementById('nProjFaCyT');
   fields.nProjIng = document.getElementById('nProjIng');
   fields.nProjOdont = document.getElementById('nProjOdont');
+  fields.nProjAraFCS = document.getElementById('nProjAraFCS');
+  fields.nProjAraFaCES = document.getElementById('nProjAraFaCES');
+  fields.nProjCojFCS = document.getElementById('nProjCojFCS');
+
 
   fields.nPart = document.getElementById('nPart');
   fields.nPartFCJP = document.getElementById('nPartFCJP');
@@ -36,7 +40,7 @@ $(document).ready(function() {
     url: '/getStats'
   }).done(function (res) {
     console.log(res.data);
-
+    // Seteamos los Proyectos
     fields.nProj.innerText = res.data.nProj;
     fields.nProjDevuelto.innerText = res.data.devuelto;
     fields.nProjRecibido.innerText = res.data.recibido;
@@ -44,6 +48,18 @@ $(document).ready(function() {
     fields.nProjRechazado.innerText = res.data.rechazado;
     fields.nProjAprobado.innerText = res.data.aprobado;
     fields.nProjFinalizado.innerText = res.data.finalizado;
+
+    
+    fields.nProjFCJP.innerText = res.data.nProjectsByFac['FCJP'] | 0;
+    fields.nProjFCS.innerText = res.data.nProjectsByFac['FCS'] | 0;
+    fields.nProjFaCES.innerText = res.data.nProjectsByFac['FaCES'] | 0;
+    fields.nProjFaCE.innerText = res.data.nProjectsByFac['FaCE'] | 0;
+    fields.nProjFaCyT.innerText = res.data.nProjectsByFac['FaCyT'] | 0;
+    fields.nProjIng.innerText = res.data.nProjectsByFac['Ingenieria'] | 0;
+    fields.nProjOdont.innerText = res.data.nProjectsByFac['Odontologia'] | 0;
+    fields.nProjAraFCS.innerText = res.data.nProjectsByFac['Aragua_FCS'] | 0;
+    fields.nProjAraFaCES.innerText = res.data.nProjectsByFac['Aragua_FaCES'] | 0;
+    fields.nProjCojFCS.innerText = res.data.nProjectsByFac['Cojedes_FCS'] | 0;
 
     // Seteamos los Participantes
     fields.nPart.innerText = res.data.nPart;
