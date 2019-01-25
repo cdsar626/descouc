@@ -320,6 +320,19 @@ app.get('/register', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.get('/searchProjects', asyncMiddleware( async (req, res) => {
+  if(1) { // some checks from req.query.codigo
+    console.log(req.query);
+    let data = await pool.query(`
+      SELECT proyectos.id, proyectos.nombreProyecto, proyectos.fechaInicio, proyectos.fechaFin, proyectos.tipo, participantes.nombre, participantes.apellido, participantes.cedula 
+      FROM proyectos INNER JOIN participantes 
+      ON participantes.refProyecto=proyectos.id AND participantes.cedula=?;`, [req.query.codigo]);
+      res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/success', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 3, 2)) {
     if(req.session.rol == 3){
@@ -656,6 +669,16 @@ app.post('/register', asyncMiddleware( async (req, res) => {
     forbid(res);
   }
 }) );
+
+app.post('/sendEmail', asyncMiddleware( async (req, res) => {
+  console.log('email requested');
+  if (messageIsSended) {
+    res.send('message sended');
+  } else {
+    forbid(res);
+  }
+}) );
+
 
 app.post('/subirAval', asyncMiddleware(async (req, res) =>{
   if (await isValidSessionAndRol(req, 2)) {

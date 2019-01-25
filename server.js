@@ -20,6 +20,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(compress());
+
+app.get('/index.html', (req, res) => {
+  res.redirect('/');
+})
+
 app.use(express.static('./dist'));
 
 app.use(require('./routes.js'));
