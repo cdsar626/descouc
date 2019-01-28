@@ -348,9 +348,10 @@ app.get('/searchProjects', asyncMiddleware( async (req, res) => {
   if(1) { // some checks from req.query.codigo
     console.log(req.query);
     let data = await pool.query(`
-      SELECT proyectos.id, proyectos.nombreProyecto, proyectos.fechaInicio, proyectos.fechaFin, proyectos.tipo, participantes.nombre, participantes.apellido, participantes.cedula 
+      SELECT proyectos.id, proyectos.nombreProyecto, proyectos.fechaInicio, proyectos.fechaFin, proyectos.tipo, participantes.nombre, participantes.apellido, participantes.cedula, participantes.tipo as rol
       FROM proyectos INNER JOIN participantes 
       ON participantes.refProyecto=proyectos.id AND participantes.cedula=?;`, [req.query.codigo]);
+      console.log(data);
       res.json({ data });
   } else {
     forbid(res);
@@ -427,24 +428,29 @@ app.post('/agregarAreaPrioritaria', asyncMiddleware( async (req, res) => {
 
 app.post('/agregarParticipantes', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 3)) {
+    console.log(req.body)
     if (!(await verificarAutoridad(req, req.body.refProyecto))) {
       res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
       throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
     }
-    let fechaNac = req.body.fechaNac.split('/');
-    let data = [
-      //id -> 0
-      req.body.nombre,
-      req.body.apellido,
-      req.body.cedula,
-      req.body.lugar,
-      req.body.genero,
-      `${fechaNac[2]}-${fechaNac[1]}-${fechaNac[0]}`,
-      req.body.tipoParticipante,
-      req.body.refProyecto,
-    ]
-    await pool.query('INSERT INTO participantes VALUES(0,?,?,?,?,?,?,?,?,NULL)', data);
-    res.redirect('/success');
+    if( (await pool.query('SELECT id FROM participantes WHERE cedula=? AND refProyecto=?', [req.body.cedula, req.body.refProyecto])).length ) {
+      res.status(400).send('Esta cédula ya está registrada como participante en este proyecto.');
+    } else {
+      let fechaNac = req.body.fechaNac.split('/');
+      let data = [
+        //id -> 0
+        req.body.nombre,
+        req.body.apellido,
+        req.body.cedula,
+        req.body.lugar,
+        req.body.genero,
+        `${fechaNac[2]}-${fechaNac[1]}-${fechaNac[0]}`,
+        req.body.tipoParticipante,
+        req.body.refProyecto,
+      ]
+      await pool.query('INSERT INTO participantes VALUES(0,?,?,?,?,?,?,?,?,NULL)', data);
+      res.redirect('/success');
+    }
   } else {
     forbid(res);
   }
@@ -482,11 +488,38 @@ app.post('/deletePlanPatria', asyncMiddleware( async (req, res) => {
 }) );
 
 app.post('/descoUpdate', asyncMiddleware( async (req, res) => {
-  console.log(req.body);
   if (await isValidSessionAndRol(req, 2)) {
-    let nota = req.body.nota == ''? null : req.body.nota;
-    await pool.query('UPDATE proyectos SET nota=?, status=?, fechaStatus=NOW() WHERE id=?', [nota, req.body.status, req.body.id]);
-    res.redirect('/dashboard');
+    await upload.any()(req, res, async function(err) { // Sube los archivos
+      if(err) {
+        return res.end('Error al subir archivos. Esto puede ocurrir si el archivo es mayor a 5MB.');
+      } else {
+        console.log(req.body);
+        console.log(req.files);
+        let nota = req.body.nota == ''? null : req.body.nota;
+        if(req.body.status == 4) {
+          if(req.files.length) {
+            let dataDoc = [
+              //id
+              req.body.refProyecto,
+              //refAvance
+              req.files[0].path,
+              req.files[0].filename,
+              //fechaSubida
+              //tipo -> Aval -> 3
+              //numero -> 1
+            ];
+            await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,NOW(),3,1)', dataDoc);
+            await pool.query('UPDATE proyectos SET nota=?, status=?, fechaStatus=NOW() WHERE id=?', [nota, req.body.status, req.body.id]);
+            res.redirect('/success');
+          } else {
+            forbid(res);
+          }
+        } else {
+          await pool.query('UPDATE proyectos SET nota=?, status=?, fechaStatus=NOW() WHERE id=?', [nota, req.body.status, req.body.id]);
+          res.redirect('/success');
+        }
+      }
+    })
   } else {
     forbid(res);
   }
@@ -512,7 +545,7 @@ app.post('/editPlanPatria', asyncMiddleware( async (req, res) => {
   }
 }) );
 
-let fileFieldsFromEditProject = [
+let fileFields = [
   {name: 'file1', maxCount: 1},
   {name: 'file2', maxCount: 1},
   {name: 'file3', maxCount: 1},
@@ -522,7 +555,7 @@ let fileFieldsFromEditProject = [
 
 app.post('/editProject', asyncMiddleware(async (req, res) => {
   if(await isValidSessionAndRol(req, 3)) { // Si es valida la sesion y rol
-    await upload.fields(fileFieldsFromEditProject)(req, res, async function(err) { // Sube los archivos
+    await upload.fields(fileFields)(req, res, async function(err) { // Sube los archivos
       if (!(await verificarAutoridad(req, req.body.id))) {
         res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
         throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
@@ -626,7 +659,7 @@ app.post('/editUser', asyncMiddleware( async (req, res) => {
 
 app.post('/finalizarProyecto', asyncMiddleware(async (req, res) => {
   if (await isValidSessionAndRol(req, 3)) {
-    await upload.array('inputFile',10)(req, res, async function(err) { // Sube los archivos
+    await upload.fields(fileFields)(req, res, async function(err) { // Sube los archivos
       console.log(req.body);
       if (!(await verificarAutoridad(req, req.body.refProyecto))) {
         res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
@@ -649,19 +682,20 @@ app.post('/finalizarProyecto', asyncMiddleware(async (req, res) => {
         ]
         let qryRes = await pool.query('INSERT INTO avances VALUES(0,?,?,?,?)', avanceData);
         await pool.query('UPDATE proyectos SET avances=avances+1 WHERE id=?', [req.body.refProyecto]);
-
-        for(let i = 0; i < req.files.length; i++) {
-          let docData = [
-            // id
-            req.body.refProyecto,
-            qryRes.insertId,
-            req.files[i].path,
-            req.files[i].filename,
-            // Fecha subida
-            // tipo -> 5: finales
-            i+1 // numero
-          ]
-          await pool.query('INSERT INTO documentos VALUES(0,?,?,?,?,NOW(),5,?)', docData);
+        for(let i = 1; i <= 5; i++) {
+          if(req.files['file'+i] && req.body['tagDoc'+i]){
+            let docData = [
+              //id: 0: auto
+              req.body.refProyecto,
+              qryRes.insertId,
+              req.files['file'+i][0].path,
+              req.body['tagDoc'+i],
+              (new Date()).toISOString().split('T')[0], // Obtiene solo la fecha en formato yyyy-mm-dd
+              //tipo: inicio, actualizado, etc.
+              i, //numero
+            ];
+            await pool.query('INSERT INTO documentos VALUES(0,?,?,?,?,?,5,?)', docData);
+          }
         }
         await pool.query('UPDATE proyectos SET status=5, fechaStatus=NOW() WHERE id=?', [req.body.refProyecto]);
         res.redirect('/success');
@@ -735,7 +769,7 @@ app.post('/subirAval', asyncMiddleware(async (req, res) =>{
 
 app.post('/subirAvance', asyncMiddleware(async (req, res) => {
   if(await isValidSessionAndRol(req, 3)) { // Si es valida la sesion
-    await upload.array('inputFile',10)(req, res, async function(err) { // Sube los archivos
+    await upload.fields(fileFields)(req, res, async function(err) { // Sube los archivos
       if (!(await verificarAutoridad(req, req.body.refProyecto))) {
         res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
         throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
@@ -757,19 +791,20 @@ app.post('/subirAvance', asyncMiddleware(async (req, res) => {
         ]
         let qryRes = await pool.query('INSERT INTO avances VALUES(0,?,?,?,?)', avanceData);
         await pool.query('UPDATE proyectos SET avances=avances+1 WHERE id=?', [req.body.refProyecto]);
-
-        for(let i = 0; i < req.files.length; i++) {
-          let docData = [
-            // id
-            req.body.refProyecto,
-            qryRes.insertId,
-            req.files[i].path,
-            req.files[i].filename,
-            // Fecha subida
-            // tipo -> 4: avances
-            i+1 // numero
-          ]
-          await pool.query('INSERT INTO documentos VALUES(0,?,?,?,?,NOW(),4,?)', docData);
+        for(let i = 1; i <= 5; i++) {
+          if(req.files['file'+i] && req.body['tagDoc'+i]){
+            let docData = [
+              //id: 0: auto
+              req.body.refProyecto,
+              qryRes.insertId,
+              req.files['file'+i][0].path,
+              req.body['tagDoc'+i],
+              (new Date()).toISOString().split('T')[0], // Obtiene solo la fecha en formato yyyy-mm-dd
+              //tipo: inicio, actualizado, etc.
+              i, //numero
+            ];
+            await pool.query('INSERT INTO documentos VALUES(0,?,?,?,?,?,4,?)', docData);
+          }
         }
         res.redirect('/success');
       }
@@ -781,14 +816,7 @@ app.post('/subirAvance', asyncMiddleware(async (req, res) => {
   }
 }))
 
-let fileFieldsFromUploadProject = [
-  {name: 'file1', maxCount: 1},
-  {name: 'file2', maxCount: 1},
-  {name: 'file3', maxCount: 1},
-  {name: 'file4', maxCount: 1},
-  {name: 'file5', maxCount: 1},
-]
-app.post('/uploadProject', upload.fields(fileFieldsFromUploadProject),asyncMiddleware(async (req, res) => {
+app.post('/uploadProject', upload.fields(fileFields),asyncMiddleware(async (req, res) => {
   console.log(req.body);
   console.log(req.files);
   if (await isValidSessionAndRol(req,3)) {

@@ -182,7 +182,7 @@ $(document).ready(function() {
     });
   })
 
-  // Coloca el nombre del archivo en el campo de file1 cuando cambia
+  // Coloca el nombre del archivo en el campo de file# cuando cambia
   function showNameFileOnChange(id) {
     $('#'+id).change(function(e) {
       let campoInputFile = document.getElementsByClassName('custom-file-label')[id[4]-1];

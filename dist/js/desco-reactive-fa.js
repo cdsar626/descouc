@@ -292,6 +292,7 @@ $(document).ready(function() {
                 <td>Nombre</td>
                 <td>Apellido</td>
                 <td>Cedula</td>
+                <td>Rol</td>
                 <td>Lugar</td>
                 <td>Genero</td>
                 <td>Nacimiento</td>
@@ -312,6 +313,7 @@ $(document).ready(function() {
                 <td>${res.data[i].nombre}</td>
                 <td>${res.data[i].apellido}</td>
                 <td>${res.data[i].cedula}</td>
+                <td>${num2Rol(res.data[i].tipo)}</td>
                 <td>${res.data[i].lugar}</td>
                 <td>${res.data[i].genero}</td>
                 <td>${(new Date(res.data[i].nacimiento)).toLocaleDateString()}</td>
@@ -341,7 +343,7 @@ $(document).ready(function() {
               if (filesByTipo[4]) finalIds = uniqueArrayDocsObjects(filesByTipo[4]);
               console.log(avancesIds);
               avancesHtml = avancesHtml + `
-                <h6>Avance ${ (i+1) != res.data.length ? i+1 : 'Final' } <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
+                <h6>Avance ${filesByTipo[4] ? (i+1) != res.data.length ? i+1 : 'Final' : i+1 } <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
                 <div>
                   
                 </div>
@@ -353,15 +355,16 @@ $(document).ready(function() {
               console.log(docsFromiAvance);
               for(let j = 0; j < docsFromiAvance.length; j++) {
                 avancesHtml = avancesHtml + `
-                  <a target="_blank" href="${docsFromiAvance[j].ruta}">Archivo ${j+1}</a>
+                  <a target="_blank" href="${docsFromiAvance[j].ruta}">Archivo ${j+1}: ${docsFromiAvance[j].nombreDoc}</a><br>
                 `
               }
+              // Si los archivos son avances finales y es la ultima iteracion
               if(filesByTipo[4] && i == res.data.length-1) {
                 let docsFromFinal = filesByTipo[4].filter(x => x.refAvance == finalIds[0]);
                 console.log(docsFromFinal);
                 for(let j = 0; j < docsFromFinal.length; j++) {
                   avancesHtml = avancesHtml + `
-                    <a target="_blank" href="${docsFromFinal[j].ruta}">Archivo ${j+1}</a>
+                    <a target="_blank" href="${docsFromFinal[j].ruta}">Archivo ${j+1}: ${docsFromFinal[j].nombreDoc}</a><br>
                   `
                 }
               }
@@ -559,6 +562,14 @@ $(document).ready(function() {
     }
   }
 
+  function num2Rol(num) {
+    switch(num) {
+      case 1: return 'Alumno'; break;
+      case 2: return 'Tutor'; break;
+      case 3: return 'Comunidad'; break;
+    }
+  }
+
   // Obtiene un arreglo con los valores únicos de v.refAvance dentro de un arreglo de objetos
   function uniqueArrayDocsObjects( ar ) {
     var j = {};
@@ -598,4 +609,43 @@ $(document).ready(function() {
   })
 
 
+  // Para evitar duplicado de participante en un proyecto
+  $('#addPartForm').on('submit', function (ev) {
+    ev.preventDefault();
+    document.getElementById('addPartError').innerHTML = '';
+    $.ajax({
+      method: 'post',
+      url: '/agregarParticipantes',
+      data: $(this).serialize(),
+    }).done(function (res) {
+      location.assign('/success');
+    }).fail(function (res) {
+      document.getElementById('addPartError').innerHTML = res.responseText;
+      console.log(res);
+    })
+  })
+
+  // Coloca el nombre del archivo en el campo de file# cuando cambia
+  function showNameFileOnChange(id) {
+    $('#'+id).change(function(e) {
+      let campoInputFile = document.getElementsByClassName('custom-file-label')[id[4]-1];
+      if(document.getElementById(id).files.length > 1) {
+        campoInputFile.innerText = `${document.getElementById(id).files.length} archivos seleccionados.`
+      } else {
+        campoInputFile.innerText = $('#'+id).val().replace('C:\\fakepath\\','');
+        $('#tagDoc'+(id[4])).val( $('#'+id).val().replace('C:\\fakepath\\','').split('.')[0] );
+      }
+    })
+  }
+
+  showNameFileOnChange('file1');
+  showNameFileOnChange('file2');
+  showNameFileOnChange('file3');
+  showNameFileOnChange('file4');
+  showNameFileOnChange('file5');
+  showNameFileOnChange('file6');
+  showNameFileOnChange('file7');
+  showNameFileOnChange('file8');
+  showNameFileOnChange('file9');
+  showNameFileOnChange('file0');
 });

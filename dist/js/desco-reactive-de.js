@@ -176,6 +176,7 @@ $(document).ready(function () {
             <option value="5" ${status2Num(rowData.status) == 5 ? 'selected' : ''}>${num2Status(5)}</option>
           </select>
         </div>
+        <div id="avalPlus"></div>
         <input class="btn btn-primary btn-block descoDetails" type="submit" value="Actualizar">`;
         let textStatusHtml = `
         <div class="form-group descoDetails" >
@@ -185,7 +186,6 @@ $(document).ready(function () {
           </div>
         </div>
         <br>`
-
 
         // Para mostrar detalles segun estatus
         let plusesHtml = '';
@@ -203,7 +203,7 @@ $(document).ready(function () {
         </tr>
         </table>
         <br>
-        <form method="post" action="/descoUpdate">
+        <form method="post" action="/descoUpdate" enctype="multipart/form-data">
           <input class="d-none" name="id" value="${rowData.id}"></id>
           <div class="form-group descoDetails">
             <label for="nota">Nota  para el usuario que subió el proyecto</label>
@@ -213,7 +213,7 @@ $(document).ready(function () {
           ${status2Num(rowData.status) >= 4? textStatusHtml : selectHtml}
         </form>`;
 
-      
+      /*
         // Si está aprobado & no ha subido el aval
         if (status2Num(rowData.status) >= 4 && !(filesByTipo.find(x => x[0].tipo == 3)) ) { // Falta modificar para que ingrese aval, no cualquier archivo
           plusesHtml = plusesHtml +
@@ -222,22 +222,51 @@ $(document).ready(function () {
           <input class="d-none" type="text" name="nombreProyecto" value="${rowData.nombreProyecto}"/>
           <input class="d-none" name="tipo" value="${tipo2Num(rowData.tipo)}"/>
           <input class="d-none" name="refProyecto" value="${rowData.id}"/>`;
-            plusesHtml = plusesHtml +
-              `<div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Aval</span>
-            </div>
-            <div class="custom-file">
-              <input type="file" class="custom-file-input" name="aval" id="aval" accept=".pdf, .doc, .docx, .xlsx, .xls">
-              <label id="avalLabel" class="custom-file-label" for="aval">Escoger Archivo PDF, Word, Excel</label>
-            </div>
-          </div>`
+            plusesHtml = plusesHtml + `
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Aval</span>
+              </div>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" name="aval" id="aval" accept=".pdf, .doc, .docx, .xlsx, .xls, .jpg">
+                <label id="avalLabel" class="custom-file-label" for="aval">Escoger Archivo PDF, Word, Excel</label>
+              </div>
+            </div>`
           plusesHtml = plusesHtml +
-            `<input class="btn btn-primary mx-auto d-block" type="submit" value="Actualizar">
+            `
+            <input class="btn btn-primary mx-auto d-block" type="submit" value="Actualizar">
           </form>`;
         }
-
+*/
         fields.pluses.innerHTML = plusesHtml;
+
+        $('#status').on('change', function(ev) {
+          console.log(this.value);
+          if(this.value == 4) {
+            $('#avalPlus').html(`
+            <span>Subir aval de aprobación.</span>
+            <form method="post" action="/subirAval" enctype="multipart/form-data">
+              <input class="d-none" type="text" name="nombreProyecto" value="${rowData.nombreProyecto}"/>
+              <input class="d-none" name="tipo" value="${tipo2Num(rowData.tipo)}"/>
+              <input class="d-none" name="refProyecto" value="${rowData.id}"/>
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Aval</span>
+                </div>
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" name="aval" id="aval" accept=".pdf, .doc, .docx, .xlsx, .xls, .jpg">
+                  <label id="avalLabel" class="custom-file-label" for="aval">Escoger Archivo PDF, Word, Excel</label>
+                </div>
+              </div>`
+            );
+            $('.custom-file-input').change(function (e) {
+              let campoInputFile = document.getElementById('aval' + 'Label');
+              campoInputFile.innerText = $('#' + 'aval').val().replace('C:\\fakepath\\', '');
+            });
+          } else {
+            $('#avalPlus').html('');
+          }
+        })
 
         // Si esta aprobado
         if(status2Num(rowData.status) >= 4) {
@@ -332,8 +361,8 @@ $(document).ready(function () {
               if (filesByTipo[4]) finalIds = uniqueArrayDocsObjects(filesByTipo[4]);
               console.log(avancesIds);
               avancesHtml = avancesHtml + `
-                <h6>Avance ${ (i+1) != res.data.length ? i+1 : 'Final' } <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
-                <div>
+              <h6>Avance ${filesByTipo[4] ? (i+1) != res.data.length ? i+1 : 'Final' : i+1 } <small>${(new Date(res.data[i].fecha)).toLocaleDateString()}</small></h6>
+              <div>
                   
                 </div>
                 <div>
@@ -344,15 +373,16 @@ $(document).ready(function () {
               console.log(docsFromiAvance);
               for(let j = 0; j < docsFromiAvance.length; j++) {
                 avancesHtml = avancesHtml + `
-                  <a target="_blank" href="${docsFromiAvance[j].ruta}">Archivo ${j+1}</a>
+                <a target="_blank" href="${docsFromiAvance[j].ruta}">Archivo ${j+1}: ${docsFromiAvance[j].nombreDoc}</a><br>
                 `
               }
+              // Si los archivos son avances finales y es la ultima iteracion
               if(filesByTipo[4] && i == res.data.length-1) {
                 let docsFromFinal = filesByTipo[4].filter(x => x.refAvance == finalIds[0]);
                 console.log(docsFromFinal);
                 for(let j = 0; j < docsFromFinal.length; j++) {
                   avancesHtml = avancesHtml + `
-                    <a target="_blank" href="${docsFromFinal[j].ruta}">Archivo ${j+1}</a>
+                    <a target="_blank" href="${docsFromFinal[j].ruta}">Archivo ${j+1}: ${docsFromFinal[j].nombreDoc}</a><br>
                   `
                 }
               }
@@ -366,11 +396,7 @@ $(document).ready(function () {
         //colorear en rojo la tabla de estatus
         if (status2Num(rowData.status) == 0) $('#projectPluses').addClass('atention');
 
-        $('.custom-file-input').change(function (e) {
-          let campoInputFile = document.getElementById('aval' + 'Label');
-          campoInputFile.innerText = $('#' + 'aval').val().replace('C:\\fakepath\\', '');
-
-        })
+       
       });// fin ajax proyectos
     });// fin evento modal
 

@@ -38,6 +38,7 @@ $(document).ready(function() {
           <tr class="text-center">
             <td>Proyecto</td>
             <td>Tipo</td>
+            <td>Rol</td>
             <td>Fecha Inicio</td>
             <td>Fecha Fin</td>
             <td>Constancia</td>
@@ -50,6 +51,7 @@ $(document).ready(function() {
         <tr>
           <td>${res.data[i].nombreProyecto}</td>
           <td>${num2Tipo(res.data[i].tipo)}</td>
+          <td>${num2Rol(res.data[i].rol)}</td>
           <td>${res.data[i].fechaInicio.split('T')[0]}</td>
           <td>${res.data[i].fechaFin.split('T')[0]}</td>
           <td><a href="/constancia?proyecto=${res.data[i].id}&participante=${res.data[i].cedula}" target="_blank"><i class="fas fa-file-download"></i></a></td>
@@ -68,6 +70,14 @@ $(document).ready(function() {
       case 2: return 'Socio Productivo';
       case 3: return 'Socio Comunitario';
       case 4: return 'Integrador';
+    }
+  }
+
+  function num2Rol(num) {
+    switch(num) {
+      case 1: return 'Alumno'; break;
+      case 2: return 'Tutor'; break;
+      case 3: return 'Comunidad'; break;
     }
   }
 });

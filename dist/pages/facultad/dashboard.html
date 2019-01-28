@@ -224,7 +224,7 @@
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <form method="POST" action="/agregarParticipantes">
+          <form method="POST" action="/agregarParticipantes" name="addPartForm" id="addPartForm">
             <div class="modal-body">
               <input id="addParticipantesRefProyecto" class="d-none" name="refProyecto"/>
 
@@ -275,12 +275,7 @@
               </div>
 
               <div id="placeholderLugar">
-                <div class="form-group">
-                  <div class="form-label-group">
-                    <input type="text" id="lugar" class="form-control" placeholder="Ubicación" required autofocus name="lugar">
-                    <label for="lugar">Ubicación</label>
-                  </div>
-                </div>
+                
               </div>
 
               <div class="form-group">
@@ -288,14 +283,14 @@
                 <input type="text" id="fechaNac" class="form-control" placeholder="dd/mm/aaaa" required autofocus name="fechaNac">
                 
               </div>
-              
+              <b style="color:red"><span id="addPartError"></span></b>
               
 
             </div>
 
             <div class="modal-footer">
               <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-              <input type="submit" class="btn btn-primary" value="Enviar">
+              <input id="btnAddParticipante" type="submit" class="btn btn-primary" value="Enviar">
             </div>
              
           </form>
@@ -347,17 +342,81 @@
               </div>
               <label for="notaAvance">Notas sobre el avance</label>
               <textarea id="notaAvance" name="notaAvance" class="form-control"></textarea>
+              <div class="form-group">
+                <label>Documentos</label>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6">
+                      <div class="custom-file">
+                        <input required type="file" class="custom-file-input" id="file1" name="file1" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc1" class="form-control" placeholder="Etiqueta del documento" required name="tagDoc1">
+                    </div>
+  
+                  </div>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file2" name="file2" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc2" class="form-control" placeholder="Etiqueta del documento" name="tagDoc2">
+                    </div>
+                    
+                  </div>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file3" name="file3" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc3" class="form-control" placeholder="Etiqueta del documento" name="tagDoc3">
+                    </div>
+                      
+                  </div>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file4" name="file4" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc4" class="form-control" placeholder="Etiqueta del documento" name="tagDoc4">
+                    </div>
+                    
+                  </div>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file5" name="file5" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc5" class="form-control" placeholder="Etiqueta del documento" name="tagDoc5">
+                    </div>
+                    
+                  </div>
+              </div>
             </div>
 
-            <div class="input-group" style="width: auto; margin: 1em;">
-              <div class="input-group-prepend">
-                <span class="input-group-text">Proyecto</span>
-              </div>
-              <div class="custom-file">
-                <input multiple required type="file" class="custom-file-input" name="inputFile" id="inputFile" accept=".pdf, .doc, .docx, .xlsx">
-                <label class="custom-file-label" for="inputFile">Escoger Archivo PDF, Word, Excel</label>
-              </div>
-            </div>
 
             <div class="modal-footer">
               <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
@@ -434,17 +493,81 @@
               </div>
               <label for="notaAvance">Notas sobre el avance</label>
               <textarea id="notaAvanceF" name="notaAvance" class="form-control"></textarea>
+              <div class="form-group">
+                <label>Documentos</label>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6">
+                      <div class="custom-file">
+                        <input required type="file" class="custom-file-input" id="file6" name="file1" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc6" class="form-control" placeholder="Etiqueta del documento" required name="tagDoc1">
+                    </div>
+  
+                  </div>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file7" name="file2" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc7" class="form-control" placeholder="Etiqueta del documento" name="tagDoc2">
+                    </div>
+                    
+                  </div>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file8" name="file3" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc8" class="form-control" placeholder="Etiqueta del documento" name="tagDoc3">
+                    </div>
+                      
+                  </div>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file9" name="file4" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc9" class="form-control" placeholder="Etiqueta del documento" name="tagDoc4">
+                    </div>
+                    
+                  </div>
+  
+                  <div class="form-row">
+                  
+                    <div class="form-group col-md-6">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file0" name="file5" accept=".pdf, .doc, .docx, .xlsx, .xls">
+                        <label class="custom-file-label" for="customFile">Escoger archivo</label>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6" style="z-index: 3">
+                      <input type="text" id="tagDoc0" class="form-control" placeholder="Etiqueta del documento" name="tagDoc5">
+                    </div>
+                    
+                  </div>
+              </div>
             </div>
 
-            <div class="input-group" style="width: auto; margin: 1em;">
-              <div class="input-group-prepend">
-                <span class="input-group-text">Proyecto</span>
-              </div>
-              <div class="custom-file">
-                <input multiple required type="file" class="custom-file-input" name="inputFile" id="inputFileF" accept=".pdf, .doc, .docx, .xlsx, .xls">
-                <label class="custom-file-label" for="inputFile">Escoger Archivo PDF, Word, Excel</label>
-              </div>
-            </div>
 
             <div class="modal-footer">
               <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
