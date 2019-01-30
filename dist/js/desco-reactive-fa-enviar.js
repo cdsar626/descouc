@@ -182,6 +182,45 @@ $(document).ready(function() {
     });
   })
 
+  // Select2 Planes UC
+
+  let planesUC;
+
+  $.ajax({
+    method: 'get',
+    url: '/getPlanesUC',
+  }).done(function (res) {
+    planesUC = res.data;
+    planesUC.map(x => x.text = x.descripcion); // para cumplir con la estructura de Select2
+    planesUC.map(x => x.id = x.text);
+    planesUC.unshift({id:'', text: 'Plan Estratégico UC',selected: true, disabled: true});
+    $('#planesUC').select2({
+      placeholder: 'Plan Estratégico UC',
+      data: planesUC,
+      width: '100%',
+    });
+  })
+
+  // Select2 Agenda 2030
+
+  let agenda;
+
+  $.ajax({
+    method: 'get',
+    url: '/getAgenda2030',
+  }).done(function (res) {
+    agenda = res.data;
+    agenda.map(x => x.text = x.descripcion); // para cumplir con la estructura de Select2
+    agenda.map(x => x.id = x.text);
+    agenda.unshift({id:'', text: 'Agenda 2030',selected: true, disabled: true});
+    $('#agenda2030').select2({
+      placeholder: 'Agenda 2030',
+      data: agenda,
+      width: '100%',
+    });
+  })
+
+
   // Coloca el nombre del archivo en el campo de file# cuando cambia
   function showNameFileOnChange(id) {
     $('#'+id).change(function(e) {

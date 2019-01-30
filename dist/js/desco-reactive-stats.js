@@ -28,6 +28,9 @@ $(document).ready(function() {
   fields.nPartFaCyT = document.getElementById('nPartFaCyT');
   fields.nPartIng = document.getElementById('nPartIng');
   fields.nPartOdont = document.getElementById('nPartOdont');
+  fields.nPartAraFCS = document.getElementById('nPartAraFCS');
+  fields.nPartAraFaCES = document.getElementById('nPartAraFaCES');
+  fields.nPartCojFCS = document.getElementById('nPartCojFCS');
   fields.nPartRango1 = document.getElementById('nPartRango1');
   fields.nPartRango2 = document.getElementById('nPartRango2');
   fields.nPartRango3 = document.getElementById('nPartRango3');
@@ -78,7 +81,9 @@ $(document).ready(function() {
     fields.nPartFaCyT.innerText = res.data.FaCyT;
     fields.nPartIng.innerText = res.data.Ingenieria;
     fields.nPartOdont.innerText = res.data.Odontologia;
-
+    fields.nPartAraFCS.innerText = res.data.AraFCS;
+    fields.nPartAraFaCES.innerText = res.data.AraFaCES;
+    fields.nPartCojFCS.innerText = res.data.CojFCS;
 
   })
 

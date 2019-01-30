@@ -61,6 +61,14 @@ const asyncMiddleware = fn =>
 
 //GET Requests ------------------------------------
 
+app.get('/agenda2030', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2)) {
+    send(res, 'desco/agenda2030.html');
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/areas', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 2)) {
     send(res, 'desco/areas.html');
@@ -194,6 +202,26 @@ app.get('/getPlanesPatria', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.get('/getPlanesUC', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2, 3)) {
+    let data;
+    data = await pool.query('SELECT * FROM planesUC;');
+    res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.get('/getAgenda2030', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2, 3)) {
+    let data;
+    data = await pool.query('SELECT * FROM agenda2030;');
+    res.json({ data });
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.get('/getProyecto', asyncMiddleware( async (req, res) => {
   if(Number.isSafeInteger(Number(req.query.id)) && await isValidSessionAndRol(req, 3)) {
     console.log(req.query);
@@ -213,9 +241,16 @@ app.get('/getProyectos', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 2, 3)) {
     let data;
     if(req.session.rol == 3) {
-      data = await pool.query('SELECT * FROM proyectos WHERE email=?',[req.session.user]);
+      data = await pool.query(`
+      SELECT proyectos.*, usuarios.facultad
+      FROM proyectos INNER JOIN usuarios 
+      ON proyectos.email = usuarios.email
+      WHERE proyectos.email = ?;`,[req.session.user]);
     } else {
-      data = await pool.query('SELECT * FROM proyectos');
+      data = await pool.query(`
+      SELECT proyectos.*, usuarios.facultad
+      FROM proyectos INNER JOIN usuarios 
+      ON proyectos.email = usuarios.email;`);
     }
     res.json({ data });
   } else {
@@ -276,6 +311,9 @@ app.get('/getStats', asyncMiddleware( async (req, res) => {
     data.FaCyT = allPart.filter(x => x.lugar == 'FaCyT').length;
     data.Ingenieria = allPart.filter(x => x.lugar == 'Ingenieria').length;
     data.Odontologia = allPart.filter(x => x.lugar == 'Odontologia').length;
+    data.AraFCS = allPart.filter(x => x.lugar == 'Aragua_FCS').length;
+    data.AraFaCES = allPart.filter(x => x.lugar == 'Aragua_FaCES').length;
+    data.CojFCS = allPart.filter(x => x.lugar == 'Cojedes_FCS').length;
 
     data.rango1 = allPart.filter(x => 10 <= differenceYears(new Date, x.nacimiento) && differenceYears(new Date, x.nacimiento) < 20).length;
     data.rango2 = allPart.filter(x => 20 <= differenceYears(new Date, x.nacimiento) && differenceYears(new Date, x.nacimiento) < 30).length;
@@ -323,9 +361,17 @@ app.get('/modificar', asyncMiddleware( async (req, res) => {
   }
 }) );
 
-app.get('/planes', asyncMiddleware( async (req, res) => {
+app.get('/planesPatria', asyncMiddleware( async (req, res) => {
   if(await isValidSessionAndRol(req, 2)) {
-    send(res, 'desco/planes.html');
+    send(res, 'desco/planesPatria.html');
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.get('/planesUC', asyncMiddleware( async (req, res) => {
+  if(await isValidSessionAndRol(req, 2)) {
+    send(res, 'desco/planesUC.html');
   } else {
     forbid(res);
   }
@@ -416,6 +462,16 @@ app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
   }
 }))
 
+app.post('/agregarAgenda2030', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('INSERT INTO agenda2030 VALUES (0,?)', [req.body.plan.trim()]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.post('/agregarAreaPrioritaria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
     console.log(req.body);
@@ -466,6 +522,25 @@ app.post('/agregarPlanPatria', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.post('/agregarPlanUC', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('INSERT INTO planesUC VALUES (0,?)', [req.body.plan.trim()]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.post('/deleteAgenda2030', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('DELETE FROM agenda2030 WHERE id=?', [req.body.id]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
 
 app.post('/deleteAreaPrioritaria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
@@ -481,6 +556,16 @@ app.post('/deletePlanPatria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
     console.log(req.body);
     await pool.query('DELETE FROM planesPatria WHERE id=?', [req.body.id]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.post('/deletePlanUC', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('DELETE FROM planesUC WHERE id=?', [req.body.id]);
     res.redirect('/success');
   } else {
     forbid(res);
@@ -525,6 +610,16 @@ app.post('/descoUpdate', asyncMiddleware( async (req, res) => {
   }
 }) );
 
+app.post('/editAgenda2030', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('UPDATE agenda2030 SET descripcion=? WHERE id=?', [req.body.plan, req.body.id]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
 app.post('/editAreaPrioritaria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
     console.log(req.body);
@@ -539,6 +634,16 @@ app.post('/editPlanPatria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
     console.log(req.body);
     await pool.query('UPDATE planesPatria SET descripcion=? WHERE id=?', [req.body.plan, req.body.id]);
+    res.redirect('/success');
+  } else {
+    forbid(res);
+  }
+}) );
+
+app.post('/editPlanUC', asyncMiddleware( async (req, res) => {
+  if (await isValidSessionAndRol(req, 2)) {
+    console.log(req.body);
+    await pool.query('UPDATE planesUC SET descripcion=? WHERE id=?', [req.body.plan, req.body.id]);
     res.redirect('/success');
   } else {
     forbid(res);
@@ -577,6 +682,8 @@ app.post('/editProject', asyncMiddleware(async (req, res) => {
           req.body.areaAtencion,
           req.body.areaPrioritaria,
           req.body.planesPatria,
+          req.body.planesUC,
+          req.body.agenda2030,
           req.body.duracionProyecto,
           `${req.body.anoInicio}-${req.body.mesInicio}-${req.body.diaInicio}`,//fecha inicio
           `${req.body.anoFin}-${req.body.mesFin}-${req.body.diaFin}`,//fechafin
@@ -609,7 +716,7 @@ app.post('/editProject', asyncMiddleware(async (req, res) => {
         SET nombreProyecto=?, descripcionGeneral=?, orgResponsable=?,
         responsables=?, estado=?, municipio=?, parroquia=?, direccion=?,
         beneficiariosDirectos=?, beneficiariosIndirectos=?, areaAtencion=?,
-        areaPrioritaria=?, planPatria=?, duracionProyecto=?, fechaInicio=?,
+        areaPrioritaria=?, planPatria=?, planUC=?, agenda2030=?, duracionProyecto=?, fechaInicio=?,
         fechaFin=?, objGeneral=?, objsEspecificos=?, tipo=?
         WHERE id=?`, proyData);
         if(req.body.nuevosDocs) {
@@ -836,6 +943,8 @@ app.post('/uploadProject', upload.fields(fileFields),asyncMiddleware(async (req,
       req.body.areaAtencion,
       req.body.areaPrioritaria,
       req.body.planesPatria,
+      req.body.planesUC,
+      req.body.agenda2030,
       req.body.duracionProyecto,
       `${req.body.anoInicio}-${req.body.mesInicio}-${req.body.diaInicio}`,//fecha inicio
       `${req.body.anoFin}-${req.body.mesFin}-${req.body.diaFin}`,//fechafin
@@ -862,7 +971,7 @@ app.post('/uploadProject', upload.fields(fileFields),asyncMiddleware(async (req,
       //fecheEnvio
       //fechaStatus
     ]
-    let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,0,NOW(),NOW())', proyData);
+    let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,0,NOW(),NOW())', proyData);
     console.log(req.files['file'+1][0]);
     for(let i = 1; i <= 5; i++) {
       if(req.files['file'+i] && req.body['tagDoc'+i]){

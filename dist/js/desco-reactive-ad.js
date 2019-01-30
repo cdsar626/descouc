@@ -92,15 +92,6 @@ $(document).ready(function() {
     case "Aragua_FCS": return 'Aragua - Ciencias de la Salud (FCS)';
     case "Aragua_FaCES": return 'Aragua - Ciencias Económicas y Sociales (FaCES)';
     case "Cojedes_FCS": return 'Cojedes - Ciencias de la Salud (FCS)';
-
-
-
-
-
-
-
-
-
     }
   }
 

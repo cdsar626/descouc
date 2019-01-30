@@ -65,14 +65,18 @@ $(document).ready(function() {
       fields.direccion = document.getElementById('projectModalDireccion');
       fields.benefD = document.getElementById('projectModalBenefD');
       fields.benefI = document.getElementById('projectModalBenefI');
+      fields.areaAtencion = document.getElementById('projectModalAreaAtencion');
       fields.areaP = document.getElementById('projectModalAreaP');
       fields.planP = document.getElementById('projectModalPlanP');
+      fields.planUC = document.getElementById('projectModalPlanUC');
+      fields.agenda2030 = document.getElementById('projectModalAgenda2030');
       fields.tipoP = document.getElementById('projectModalTipoP');
       fields.duracion = document.getElementById('projectModalDuracion');
       fields.fechaI = document.getElementById('projectModalFechaI');
       fields.fechaF = document.getElementById('projectModalFechaF');
       fields.objGen = document.getElementById('projectModalObjGeneral');
       fields.objsEsp = document.getElementById('projectModalObjsEspecificos');
+      fields.facultad = document.getElementById('projectModalFacultad');
       fields.filesHeads = document.getElementById('projectModalFilesHeads');
       fields.files = document.getElementById('tableProjectFiles');
       fields.pluses = document.getElementById('projectModalPluses');
@@ -94,14 +98,18 @@ $(document).ready(function() {
       fields.direccion.innerText = rowData.direccion;
       fields.benefD.innerText = rowData.beneficiariosDirectos;
       fields.benefI.innerText = rowData.beneficiariosIndirectos;
+      fields.areaAtencion.innerText = rowData.areaAtencion;
       fields.areaP.innerText = rowData.areaPrioritaria;
       fields.planP.innerText = rowData.planPatria;
+      fields.planUC.innerText = rowData.planUC;
+      fields.agenda2030.innerText = rowData.agenda2030;
       fields.tipoP.innerText = rowData.tipo;
       fields.duracion.innerText = rowData.duracionProyecto;
       fields.fechaI.innerText = (new Date(rowData.fechaInicio)) == 'Invalid Date' ? rowData.fechaInicio.split('T')[0] : (new Date(rowData.fechaInicio)).toLocaleDateString();
       fields.fechaF.innerText = (new Date(rowData.fechaFin)) == 'Invalid Date' ? rowData.fechaFin.split('T')[0] : (new Date(rowData.fechaFin)).toLocaleDateString();
       fields.objGen.innerText = rowData.objGeneral;
       fields.objsEsp.innerText = rowData.objsEspecificos;
+      fields.facultad.innerText = facultad2Text(rowData.facultad);
       fields.addAvancesNombre.value = rowData.nombreProyecto;
       fields.addAvancesTipo.value = tipo2Num(rowData.tipo);
       fields.addAvancesRef.value = rowData.id;
@@ -109,6 +117,7 @@ $(document).ready(function() {
       fields.finalizarProyectoTipo.value = tipo2Num(rowData.tipo);
       fields.finalizarProyectoRef.value = rowData.id;
 
+      console.log(rowData);
       if(rowData.status == 'Recibido') {
         fields.modificar.innerHTML = `<a class="btn btn-primary" href="/modificar?proyecto=${rowData.id}">Modificar</a>`
       } else {
@@ -567,6 +576,21 @@ $(document).ready(function() {
       case 1: return 'Alumno'; break;
       case 2: return 'Tutor'; break;
       case 3: return 'Comunidad'; break;
+    }
+  }
+
+  function facultad2Text(fac) {
+    switch (fac) {
+    case "FCJP": return 'Ciencias Jurídicas y Políticas (FCJP)';
+    case "FCS": return 'Ciencias de la Salud (FCS)';
+    case "FaCES": return 'Ciencias Económicas y Sociales (FaCES)';
+    case "FaCE": return 'Ciencias de la Educación (FaCE)';
+    case "FaCyT": return 'Experimental de Ciencia y Tecnología (FaCyT)';
+    case "Ingenieria": return 'Ingeniería';
+    case "Odontologia": return 'Odontología';
+    case "Aragua_FCS": return 'Aragua - Ciencias de la Salud (FCS)';
+    case "Aragua_FaCES": return 'Aragua - Ciencias Económicas y Sociales (FaCES)';
+    case "Cojedes_FCS": return 'Cojedes - Ciencias de la Salud (FCS)';
     }
   }
 

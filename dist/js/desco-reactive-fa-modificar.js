@@ -34,6 +34,8 @@ $(document).ready(function() {
   fields.areaAtencion = document.getElementById('areaAtencion');
   fields.areaPrioritaria = document.getElementById('areaPrioritaria');
   fields.planesPatria = document.getElementById('planesPatria');
+  fields.planesUC = document.getElementById('planesUC');
+  fields.agenda2030 = document.getElementById('agenda2030');
   fields.duracionProyecto = document.getElementById('duracionProyecto');
   fields.anoInicio = document.getElementById('anoInicio');
   fields.mesInicio = document.getElementById('mesInicio');
@@ -66,6 +68,8 @@ $(document).ready(function() {
     fields.areaAtencion.value = info.areaAtencion;
     $(fields.areaPrioritaria).val(info.areaPrioritaria).trigger('change');
     $(fields.planesPatria).val(info.planPatria).trigger('change');
+    $(fields.planesUC).val(info.planUC).trigger('change');
+    $(fields.agenda2030).val(info.agenda2030).trigger('change');
     fields.duracionProyecto.value = info.duracionProyecto;
     fields.anoInicio.value = info.fechaInicio.split('-')[0];
     $(fields.mesInicio).val(Number(info.fechaInicio.split('-')[1])).trigger('change');

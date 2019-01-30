@@ -26,6 +26,18 @@ CREATE TABLE planesPatria(
   PRIMARY KEY(id)
 );
 
+CREATE TABLE planesUC(
+  id                      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  descripcion             VARCHAR(300) NOT NULL,
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE agenda2030(
+  id                      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  descripcion             VARCHAR(300) NOT NULL,
+  PRIMARY KEY(id)
+);
+
 
 CREATE TABLE proyectos(
   id                      INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -43,6 +55,8 @@ CREATE TABLE proyectos(
   areaAtencion            VARCHAR(150) NOT NULL,
   areaPrioritaria         VARCHAR(350) NOT NULL,
   planPatria              VARCHAR(350) NOT NULL,
+  planUC                  VARCHAR(350) NOT NULL,
+  agenda2030              VARCHAR(350) NOT NULL,
   duracionProyecto        VARCHAR(30) NOT NULL,
   fechaInicio             DATE NOT NULL,
   fechaFin                DATE NOT NULL,
