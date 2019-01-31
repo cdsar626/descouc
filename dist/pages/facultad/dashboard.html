@@ -19,6 +19,9 @@
 
     <!-- Page level plugin CSS-->
     <link href="css/datatables.min.css" rel="stylesheet">
+    <link href="css/datepicker/bootstrap-datepicker3.min.css" rel="stylesheet">
+    <link href="css/select2.min.css" rel="stylesheet">
+    <link href="css/select2-bootstrap4.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin.css" rel="stylesheet">
@@ -28,6 +31,17 @@
   <style>
     #dataTable tr {
       cursor: pointer;
+    }
+    .aFiltro {
+      cursor: pointer;
+      color: #007bff !important;
+    }
+    .aFiltro:hover {
+      color: #007bffaa !important;
+    }
+    .ulFiltro {
+      list-style: none;
+      padding: 0;
     }
     .descoDetails {
       max-width: 500px;
@@ -87,7 +101,7 @@
       <ul class="sidebar navbar-nav">
         <li class="nav-item active">
           <a class="nav-link" href="#">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <i class="fas fa-fw fa-book-open"></i>
             <span>Dashboard</span>
           </a>
         </li>
@@ -107,6 +121,13 @@
           <ol class="breadcrumb">
             <li class="breadcrumb-item active">Dashboard - Facultad</li>
           </ol>
+
+          <div class="mb-3">
+            <button class="btn" id="btnFiltros">Mostrar Filtros</button>
+          </div>
+            
+          <div id="filtros">
+          </div>
 
           <!-- DataTables Example -->
           <div class="card mb-3">
@@ -694,8 +715,12 @@
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin.js"></script>
-
     <script src="js/datatables.min.js"></script>
+    <script src="js/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap-datepicker.es.min.js"></script>
+    <script src="js/select2.min.js"></script>
+    <script src="js/i18n/es.js"></script>
+    
     <script src="js/desco-reactive-fa.js"></script>
 
   </body>

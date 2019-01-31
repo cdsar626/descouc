@@ -672,4 +672,317 @@ $(document).ready(function() {
   showNameFileOnChange('file8');
   showNameFileOnChange('file9');
   showNameFileOnChange('file0');
+
+  // Para crear filtro de los proyectos
+  let filtrosActivos = false;
+  let filtros = document.getElementById('filtros');
+  let filtrosHtml =`
+  <div class="card mb-3 d-flex flex-row flex-wrap" id="filtrosContent">
+
+    <div class="d-flex flex-column mr-3">
+
+      <span><b>Tipo:</b></span>
+      <ul class="ulFiltro">
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroTipo">Extensión</a></small></span></li>
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroTipo">Socio Productivo</a></small></span></li>
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroTipo">Socio Comunitario</a></small></span></li>
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroTipo">Integrador</a></small></span></li>
+      </ul>
+
+      <span><b>Estatus:</b></span>
+      <ul class="ulFiltro">
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroEstatus">Recibido</a></small></span></li>
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroEstatus">En revision</a></small></span></li>
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroEstatus">Rechazado</a></small></span></li>
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroEstatus">Aprobado</a></small></span></li>
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroEstatus">Finalizado</a></small></span></li>
+        <li><span><small><i class="fas fa-angle-right fa-xs fa-fw"></i> <a class="aFiltro aFiltroEstatus">Devuelto para modificar</a></small></span></li>
+      </ul>
+
+    </div>
+    <div class="d-flex flex-column mr-3">
+
+      <span><b>Fecha de Envio (rango):</b></span>
+      <div class="input-daterange input-group input-group-sm" id="filtroFechaEnvio">
+        <input type="text" class="input-sm form-control" id="filtroFechaEnvioInicio" placeholder="Inicio Rango"/>
+        <input type="text" class="input-sm form-control" id="filtroFechaEnvioFin" placeholder="Fin Rango"/>
+      </div>
+      <button class="btn btn-primary btnFiltroFecha" id="btnFiltroFechaEnvio">Filtrar</button>
+
+      <span><b>Fecha de Inicio (rango):</b></span>
+      <div class="input-daterange input-group input-group-sm" id="filtroFechaInicio">
+        <input type="text" class="input-sm form-control" id="filtroFechaInicioInicio" placeholder="Inicio Rango"/>
+        <input type="text" class="input-sm form-control" id="filtroFechaInicioFin" placeholder="Fin Rango"/>
+      </div>
+      <button class="btn btn-primary btnFiltroFecha" id="btnFiltroFechaInicio">Filtrar</button>
+
+      <span><b>Fecha de Fin (rango):</b></span>
+      <div class="input-daterange input-group input-group-sm" id="filtroFechaFin">
+        <input type="text" class="input-sm form-control" id="filtroFechaFinInicio" placeholder="Inicio Rango"/>
+        <input type="text" class="input-sm form-control" id="filtroFechaFinFin" placeholder="Fin Rango"/>
+      </div>
+      <button class="btn btn-primary btnFiltroFecha" id="btnFiltroFechaFin">Filtrar</button>
+
+    </div>
+    <div class="d-flex flex-column mr-3 col-md-3">
+
+      <span><b>Estado:</b></span>
+      <div class="form-group">
+        <select required id="ubiEstado" name="estado" placeholder="Estado"></select>
+        <input class="d-none" id="estadoText" name="estadoText">
+      </div>
+      <button class="btn btn-primary btnFiltroLugar" id="btnFiltroEstado">Filtrar</button>
+
+      <span><b>Municipio:</b></span>
+      <div class="form-group">
+        <select required id="ubiMunicipio" name="municipio" placeholder="Municipio" disabled></select>
+        <input class="d-none" id="municipioText" name="municipioText">
+      </div>
+      <button class="btn btn-primary btnFiltroLugar" id="btnFiltroMunicipio">Filtrar</button>
+
+      <span><b>Parroquia:</b></span>
+      <div class="form-group">
+        <select required id="ubiParroquia" name="parroquia" placeholder="Parroquia" disabled></select>
+        <input class="d-none" id="parroquiaText" name="parroquiaText">
+      </div>
+      <button class="btn btn-primary btnFiltroLugar mb-3" id="btnFiltroParroquia">Filtrar</button>
+
+    </div>
+
+    <div class="d-flex flex-column flex-fill ml-3 mr-3 mt-4 mb-3">
+      <button class="btn btn-secondary btnFiltroLimpiar" id="btnFiltroLimpiar">Restaurar</button>
+    </div>
+
+  </div>
+  `;
+  
+  $('#btnFiltros').on('click', function () {
+    filtrosActivos = !filtrosActivos;
+    this.innerText = filtrosActivos ? 'Ocultar Filtros' : 'Mostrar Filtros';
+    if (filtrosActivos) {
+      this.innerText = 'Ocultar Filtros';
+      $(filtrosHtml).appendTo(filtros);
+      if (typeof filtrosHtml === 'string') eventosFiltros();
+
+    } else {
+      this.innerText = 'Mostrar Filtros';
+      filtrosHtml = $('#filtrosContent').detach();
+    }
+  })
+  
+
+  // filtros: ubicacion 
+  $.fn.select2.defaults.set('theme', 'bootstrap4');
+  let allEstados;
+  let allMunicipios;
+  let allParroquias;
+  let municipios;
+  let parroquias;
+
+  $.ajax({
+    method: 'get',
+    url: '/getAllPlaces',
+  }).done(function (res) {
+    allEstados = res.data.estados;
+    allMunicipios = res.data.municipios;
+    allParroquias = res.data.parroquias;
+    allEstados.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
+    allEstados.unshift({id:'', text: 'Estado',selected: true, disabled: true});
+    $('#ubiEstado').html('').select2({
+      placeholder: 'Estado',
+      data: allEstados,
+      width: '100%',
+    });
+  })
+
+  function eventosFiltros() {
+    // DatePickers
+    $('#filtroFechaEnvio').datepicker({
+      autoclose: true,
+      todayHighlight: true,
+      language: "es",
+      clearBtn: true,
+      maxViewMode: 2,
+      startView: 2,
+    });
+    $('#filtroFechaInicio').datepicker({
+      autoclose: true,
+      todayHighlight: true,
+      language: "es",
+      clearBtn: true,
+      maxViewMode: 2,
+      startView: 2,
+    });
+    $('#filtroFechaFin').datepicker({
+      autoclose: true,
+      todayHighlight: true,
+      language: "es",
+      clearBtn: true,
+      maxViewMode: 2,
+      startView: 2,
+    });
+  
+    // Selects
+    $('#ubiEstado').html('').select2({
+      placeholder: 'Estado',
+      data: allEstados,
+      width: '100%',
+    });
+
+    $('#ubiMunicipio').html('').select2({
+      placeholder: 'Municipio',
+      width: '100%',
+    });
+
+    $('#ubiParroquia').html('').select2({
+      placeholder: 'Parroquia',
+      width: '100%',
+    });
+
+    // On Estado change carga los municipios correspondientes
+    $('#ubiEstado').select2({
+      placeholder: 'Estado',
+      width: '100%',
+    }).change(function () {
+      let id = this.value;
+      $('#estadoText').val(allEstados.find(x => x.id === parseInt(id)).nombre);
+      municipios = allMunicipios.filter(x => x.estado === parseInt(id));
+      municipios.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
+      municipios.unshift({id:'', text: 'Municipio',selected: true, disabled: true});
+      $('#ubiParroquia').html('');
+      $('#ubiMunicipio').html('').prop('disabled', false).select2({
+        data: municipios,
+        placeholder: 'Municipio',
+        width: '100%',
+      })
+    });
+
+  // On Municipio change carga las parroquias correspondientes
+    $('#ubiMunicipio').select2({
+      placeholder: 'Municipio',
+      width: '100%',
+    }).change(function () {
+      let id = this.value;
+      $('#municipioText').val(municipios.find(x => x.id === parseInt(id)).nombre);
+      parroquias = allParroquias.filter(x => x.municipio == parseInt(id));
+      parroquias.map(x => x.text = x.nombre); // para cumplir con la estructura de Select2
+      parroquias.unshift({id:'', text: 'Parroquia',selected: true, disabled: true});
+      $('#ubiParroquia').html('').prop('disabled', false).select2({
+        data: parroquias,
+        placeholder: 'Parroquia',
+        width: '100%',
+      })
+    });
+
+    $('#ubiParroquia').select2({
+      placeholder: 'Parroquia',
+      width: '100%',
+    }).change(function () {
+      let id = this.value;
+      $('#parroquiaText').val(parroquias.find(x => x.id === parseInt(id)).nombre);
+    });
+
+    // Clicks para filtrar
+    $('.btnFiltroFecha').on('click', function() {
+      let tipo = this.id.split('a')[1]; // id == 'btnFiltroFecha' + ('Envio' | 'Inicio' | 'Fin')
+      filtrarFecha(tipo);
+    });
+
+    $('.btnFiltroLimpiar').on('click', function() {
+      tabla.clear();
+      tabla.rows.add(dataProyectos);
+      tabla.draw();
+      $('#btnFiltros').trigger('click');
+    });
+    
+    $('.btnFiltroLugar').on('click', function() {
+      let tipo = this.id.split('Filtro')[1]; // id == 'btnFiltro' + lugar
+      filtrarLugar(tipo);
+    });
+
+    $('.aFiltroFacultad').on('click', function() {
+      filtrarFacultad(this.innerText);
+    });
+
+    $('.aFiltroTipo').on('click', function() {
+      filtrarTipo(this.innerText);
+    });
+
+    $('.aFiltroEstatus').on('click', function() {
+      console.log(dataProyectos);
+      filtrarEstatus(this.innerText);
+    });
+
+  }
+  
+  function filtrarFecha(txt) { // txt == 'Envio' | 'Inicio' | 'Fin'
+    if ($('#filtroFecha'+txt+'Inicio').val() && $('#filtroFecha'+txt+'Fin').val()) {
+      let infoInicio = $('#filtroFecha'+txt+'Inicio').val().split(/\/|-/);
+      let inicio = new Date(`${infoInicio[1]}/${infoInicio[0]}/${infoInicio[2]}`);
+      let infoFin = $('#filtroFecha'+txt+'Fin').val().split(/\/|-/);
+      let fin = new Date(`${infoFin[1]}/${infoFin[0]}/${infoFin[2]}`);
+
+      let filtrados = dataProyectos.filter( x => {
+        let fechaEnvio = new Date(x['fecha'+txt]);
+        return inicio < fechaEnvio && fechaEnvio < fin;
+      });
+      
+      tabla.clear();
+      tabla.rows.add(filtrados);
+      tabla.draw();
+      $('#btnFiltros').trigger('click');
+    }
+  }
+
+  function filtrarLugar(txt) {
+    txt = txt.toLowerCase();
+    let lugar = document.getElementById(txt+'Text').value;
+    if(lugar) {
+      let filtrados = dataProyectos.filter( x => x[txt] == lugar);
+  
+      tabla.clear();
+      tabla.rows.add(filtrados);
+      tabla.draw();
+      $('#btnFiltros').trigger('click');
+    }
+  }
+
+  function filtrarFacultad(fac) {
+    let filtrados = dataProyectos.filter(x => facultad2Text(x.facultad) == fac);
+    tabla.clear();
+    tabla.rows.add(filtrados);
+    tabla.draw();
+    $('#btnFiltros').trigger('click');
+  }
+
+  function filtrarTipo(tipo) {
+    let filtrados = dataProyectos.filter(x => x.tipo == tipo);
+    tabla.clear();
+    tabla.rows.add(filtrados);
+    tabla.draw();
+    $('#btnFiltros').trigger('click');
+  }
+
+  function filtrarEstatus(estatus) {
+    let filtrados = dataProyectos.filter(x => x.status == estatus);
+    tabla.clear();
+    tabla.rows.add(filtrados);
+    tabla.draw();
+    $('#btnFiltros').trigger('click');
+  }
+  
+  function facultad2Text(fac) {
+    switch (fac) {
+    case "FCJP": return 'Ciencias Jurídicas y Políticas (FCJP)';
+    case "FCS": return 'Ciencias de la Salud (FCS)';
+    case "FaCES": return 'Ciencias Económicas y Sociales (FaCES)';
+    case "FaCE": return 'Ciencias de la Educación (FaCE)';
+    case "FaCyT": return 'Experimental de Ciencia y Tecnología (FaCyT)';
+    case "Ingenieria": return 'Ingeniería';
+    case "Odontologia": return 'Odontología';
+    case "Aragua_FCS": return 'Aragua - Ciencias de la Salud (FCS)';
+    case "Aragua_FaCES": return 'Aragua - Ciencias Económicas y Sociales (FaCES)';
+    case "Cojedes_FCS": return 'Cojedes - Ciencias de la Salud (FCS)';
+    }
+  }
 });
