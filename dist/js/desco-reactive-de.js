@@ -86,7 +86,7 @@ $(document).ready(function () {
       fields.id.innerText = 'Proyecto id: ' + rowData.id;
       fields.nombre.innerText = rowData.nombreProyecto;
       fields.org.innerText = rowData.orgResponsable;
-      fields.responsables.innerText = rowData.responsables;
+      fields.responsables.innerText = '-' + rowData.responsables.replace(/\n/g, '\n-');
       fields.estado.innerText = rowData.estado;
       fields.municipio.innerText = rowData.municipio;
       fields.parroquia.innerText = rowData.parroquia;
@@ -103,7 +103,7 @@ $(document).ready(function () {
       fields.fechaI.innerText = (new Date(rowData.fechaInicio)) == 'Invalid Date' ? rowData.fechaInicio.split('T')[0] : (new Date(rowData.fechaInicio)).toLocaleDateString();
       fields.fechaF.innerText = (new Date(rowData.fechaFin)) == 'Invalid Date' ? rowData.fechaFin.split('T')[0] : (new Date(rowData.fechaFin)).toLocaleDateString();
       fields.objGen.innerText = rowData.objGeneral;
-      fields.objsEsp.innerText = rowData.objsEspecificos;
+      fields.objsEsp.innerText = '-' + rowData.objsEspecificos.replace(/\n/g, '\n-');
       fields.facultad.innerText = facultad2Text(rowData.facultad);
 
       // Para mostrar los documentos del proyecto
@@ -223,31 +223,6 @@ $(document).ready(function () {
           ${status2Num(rowData.status) >= 4? textStatusHtml : selectHtml}
         </form>`;
 
-      /*
-        // Si está aprobado & no ha subido el aval
-        if (status2Num(rowData.status) >= 4 && !(filesByTipo.find(x => x[0].tipo == 3)) ) { // Falta modificar para que ingrese aval, no cualquier archivo
-          plusesHtml = plusesHtml +
-            `<span>Subir aval de aprobación.</span>
-            <form method="post" action="/subirAval" enctype="multipart/form-data">
-          <input class="d-none" type="text" name="nombreProyecto" value="${rowData.nombreProyecto}"/>
-          <input class="d-none" name="tipo" value="${tipo2Num(rowData.tipo)}"/>
-          <input class="d-none" name="refProyecto" value="${rowData.id}"/>`;
-            plusesHtml = plusesHtml + `
-            <div class="input-group mb-3">
-              <div class="input-group-prepend">
-                <span class="input-group-text">Aval</span>
-              </div>
-              <div class="custom-file">
-                <input type="file" class="custom-file-input" name="aval" id="aval" accept=".pdf, .doc, .docx, .xlsx, .xls, .jpg">
-                <label id="avalLabel" class="custom-file-label" for="aval">Escoger Archivo PDF, Word, Excel</label>
-              </div>
-            </div>`
-          plusesHtml = plusesHtml +
-            `
-            <input class="btn btn-primary mx-auto d-block" type="submit" value="Actualizar">
-          </form>`;
-        }
-*/
         fields.pluses.innerHTML = plusesHtml;
 
         $('#status').on('change', function(ev) {
@@ -747,7 +722,7 @@ $(document).ready(function () {
 
       let filtrados = dataProyectos.filter( x => {
         let fechaEnvio = new Date(x['fecha'+txt]);
-        return inicio < fechaEnvio && fechaEnvio < fin;
+        return inicio <= fechaEnvio && fechaEnvio <= fin;
       });
       
       tabla.clear();

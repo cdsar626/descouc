@@ -91,7 +91,7 @@ $(document).ready(function() {
       fields.id.innerText = 'Proyecto id: ' + rowData.id;
       fields.nombre.innerText = rowData.nombreProyecto;
       fields.org.innerText = rowData.orgResponsable;
-      fields.responsables.innerText = rowData.responsables;
+      fields.responsables.innerText = '-' + rowData.responsables.replace(/\n/g, '\n-');
       fields.estado.innerText = rowData.estado;
       fields.municipio.innerText = rowData.municipio;
       fields.parroquia.innerText = rowData.parroquia;
@@ -108,7 +108,7 @@ $(document).ready(function() {
       fields.fechaI.innerText = (new Date(rowData.fechaInicio)) == 'Invalid Date' ? rowData.fechaInicio.split('T')[0] : (new Date(rowData.fechaInicio)).toLocaleDateString();
       fields.fechaF.innerText = (new Date(rowData.fechaFin)) == 'Invalid Date' ? rowData.fechaFin.split('T')[0] : (new Date(rowData.fechaFin)).toLocaleDateString();
       fields.objGen.innerText = rowData.objGeneral;
-      fields.objsEsp.innerText = rowData.objsEspecificos;
+      fields.objsEsp.innerText = '-' + rowData.objsEspecificos.replace(/\n/g, '\n-');
       fields.facultad.innerText = facultad2Text(rowData.facultad);
       fields.addAvancesNombre.value = rowData.nombreProyecto;
       fields.addAvancesTipo.value = tipo2Num(rowData.tipo);
@@ -924,7 +924,7 @@ $(document).ready(function() {
 
       let filtrados = dataProyectos.filter( x => {
         let fechaEnvio = new Date(x['fecha'+txt]);
-        return inicio < fechaEnvio && fechaEnvio < fin;
+        return inicio <= fechaEnvio && fechaEnvio <= fin;
       });
       
       tabla.clear();
