@@ -48,6 +48,8 @@ const options = {
   root: __dirname + '/dist/pages/',
 }
 
+// Encapsular cualquier funcion dentro de asyncMiddleware 
+// para poder utilizar async/await
 const asyncMiddleware = fn =>
   (req, res, next) => {
     Promise.resolve(fn(req, res, next))
@@ -81,10 +83,11 @@ app.get('/constancia', asyncMiddleware( async (req, res) => {
   console.log(req.query);
   if(Number.isSafeInteger(Number(req.query.proyecto))) {
     let data = await pool.query('SELECT * FROM participantes WHERE refProyecto=? && cedula=?', [req.query.proyecto, req.query.participante]);
+    let proyData = await pool.query('SELECT * FROM proyectos WHERE id=?', [req.query.proyecto]);
     console.log(data[0]);
     if(data[0]) {
       console.log('Existe');
-      enviarConstanciaParticipante(res, req.query.proyecto, data[0]);
+      enviarConstanciaParticipante(res, proyData[0], data[0]);
     } else {
       forbid(res);
     }
@@ -1053,14 +1056,25 @@ async function isValidSessionAndRol(req, rol1, rol2) {
   }
 }
 
-function enviarConstanciaParticipante(res, idProy, persona) {
-  pdfUC.crearPDFUC(idProy+persona.cedula,'./constancias/','./uc.png','./facyt.png','Republica Bolivariana de Venezuela',
- 'Vicerectorado Academico','Direccion General de Docencia y Desarrollo Curricular',
- 'DD-003-58','Valencia', 'Julio 14 de 2018', persona.nombre + ' ' + persona.apellido,'Coordinador de doctorado',
- 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
- 'Licd Maria Remedios',
- 'Coordinador de departamento','Edif Facultad de Ciencias de la Educacion',
- 'Telf.: 0245-258 74 74', res);
+function enviarConstanciaParticipante(res, proyecto, persona) {
+  pdfUC.crearPDFUC(
+  	proyecto.id+persona.cedula, // Nombre del pdf
+  	'./constancias/', // Ruta para guardar el pdf
+  	'./uc.png', // Ruta logo 1
+  	'./facyt.png', // Ruta logo 2 (en caso de utilizar)
+  	persona.nombre + ' ' + persona.apellido, // Nombre completo de la persona
+  	persona.cedula, // Cedula de la persona
+  	num2rolParticipante(persona.tipo), // Rol de la persona en el proyecto
+  	proyecto.nombreProyecto, // Nombre del proyecto
+  	res); // respuesta del servidor
+}
+
+function num2rolParticipante(num) {
+	switch (num) {
+		case 1: return 'Alumno';
+		case 2: return 'Tutor';
+		case 3: return 'Comunidad';
+	}
 }
 
 module.exports = app;
