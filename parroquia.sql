@@ -1,4 +1,4 @@
-USE interoperables;
+USE desco;
 
 CREATE TABLE estados(
   id           INT UNSIGNED NOT NULL,

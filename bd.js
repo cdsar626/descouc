@@ -5,8 +5,8 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   host: 'localhost',
   user: 'desco',
-  password: '12Desco!',
-  database: 'interoperables',
+  password: 'eBcDc0s*',
+  database: 'desco',
 })
 
 pool.getConnection((err, connection) => {
@@ -28,3 +28,4 @@ pool.getConnection((err, connection) => {
 pool.query = util.promisify(pool.query);
 
 module.exports = pool;
+

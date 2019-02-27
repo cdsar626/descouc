@@ -80,11 +80,9 @@ app.get('/areas', asyncMiddleware( async (req, res) => {
 }) );
 
 app.get('/constancia', asyncMiddleware( async (req, res) => {
-  console.log(req.query);
   if(Number.isSafeInteger(Number(req.query.proyecto))) {
     let data = await pool.query('SELECT * FROM participantes WHERE refProyecto=? && cedula=?', [req.query.proyecto, req.query.participante]);
     let proyData = await pool.query('SELECT * FROM proyectos WHERE id=?', [req.query.proyecto]);
-    console.log(data[0]);
     if(data[0]) {
       console.log('Existe');
       enviarConstanciaParticipante(res, proyData[0], data[0]);
@@ -168,7 +166,6 @@ app.get('/getEstados', asyncMiddleware( async (req, res) => {
 
 app.get('/getMunicipios', asyncMiddleware( async (req, res) => {
   if(Number.isSafeInteger(Number(req.query.estado)) && await isValidSessionAndRol(req, 2, 3)) {
-    console.log(req.query);
     let data = await pool.query('SELECT * FROM municipios WHERE estado=?',[req.query.estado]);
     res.json({ data });
   } else {
@@ -178,7 +175,6 @@ app.get('/getMunicipios', asyncMiddleware( async (req, res) => {
 
 app.get('/getParroquias', asyncMiddleware( async (req, res) => {
   if(Number.isSafeInteger(Number(req.query.municipio)) && await isValidSessionAndRol(req, 2, 3)) {
-    console.log(req.query);
     let data = await pool.query('SELECT * FROM parroquias WHERE municipio=?',[req.query.municipio]);
     res.json({ data });
   } else {
@@ -227,7 +223,6 @@ app.get('/getAgenda2030', asyncMiddleware( async (req, res) => {
 
 app.get('/getProyecto', asyncMiddleware( async (req, res) => {
   if(Number.isSafeInteger(Number(req.query.id)) && await isValidSessionAndRol(req, 3)) {
-    console.log(req.query);
     if(await verificarAutoridad(req, req.query.id)) {
       let data;
       data = await pool.query('SELECT * FROM proyectos WHERE id=?', [req.query.id]);
@@ -353,7 +348,6 @@ app.get('/logout', (req, res) => {
 
 app.get('/modificar', asyncMiddleware( async (req, res) => {
   if(Number.isSafeInteger(Number(req.query.proyecto)) && await isValidSessionAndRol(req, 3)) {
-    console.log(req.query);
     if(await verificarAutoridad(req, req.query.proyecto)) {
       send(res, 'facultad/modificarProyecto.html');
     } else {
@@ -381,7 +375,6 @@ app.get('/planesUC', asyncMiddleware( async (req, res) => {
 }) );
 
 app.get('/proyectos/:tipo/:nombre', (req, res) => {
-  console.log(req.params);
   res.sendFile(`${req.params.tipo}/${req.params.nombre}`, {root: __dirname + '/proyectos/'});
 })
 
@@ -395,12 +388,10 @@ app.get('/register', asyncMiddleware( async (req, res) => {
 
 app.get('/searchProjects', asyncMiddleware( async (req, res) => {
   if(1) { // some checks from req.query.codigo
-    console.log(req.query);
     let data = await pool.query(`
       SELECT proyectos.id, proyectos.nombreProyecto, proyectos.fechaInicio, proyectos.fechaFin, proyectos.tipo, participantes.nombre, participantes.apellido, participantes.cedula, participantes.tipo as rol
       FROM proyectos INNER JOIN participantes 
       ON participantes.refProyecto=proyectos.id AND participantes.cedula=?;`, [req.query.codigo]);
-      console.log(data);
       res.json({ data });
   } else {
     forbid(res);
@@ -439,8 +430,6 @@ app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
       if(err) {
         return res.end('Error al subir archivos. Esto puede ocurrir si algun archivo es mayor a 5MB.');
       } else {
-        console.log(req.files);
-        console.log(req.files[0].fieldname[9]);
         for(let i = 0; i < req.files.length; i++) {
           //obtiene el numero de archivo
           let nArchivo = req.files[i].fieldname[9];
@@ -452,7 +441,6 @@ app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
           ]
           await pool.query('UPDATE documentos SET ruta=?, fechaSubida=NOW() WHERE refProyecto=? && tipo=2 && numero=?', data);
           await pool.query('UPDATE proyectos SET status=2, fechaStatus=NOW() WHERE id=?',[req.body.refProyecto]);
-          console.log(req.body.refProyecto);
         }
         res.redirect('/success');
 
@@ -467,7 +455,6 @@ app.post('/actualizarDocs', asyncMiddleware(async (req, res) => {
 
 app.post('/agregarAgenda2030', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('INSERT INTO agenda2030 VALUES (0,?)', [req.body.plan.trim()]);
     res.redirect('/success');
   } else {
@@ -477,7 +464,6 @@ app.post('/agregarAgenda2030', asyncMiddleware( async (req, res) => {
 
 app.post('/agregarAreaPrioritaria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('INSERT INTO areasPrioritarias VALUES (0,?)', [req.body.area.trim()]);
     res.redirect('/success');
   } else {
@@ -487,7 +473,6 @@ app.post('/agregarAreaPrioritaria', asyncMiddleware( async (req, res) => {
 
 app.post('/agregarParticipantes', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 3)) {
-    console.log(req.body)
     if (!(await verificarAutoridad(req, req.body.refProyecto))) {
       res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
       throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
@@ -517,7 +502,6 @@ app.post('/agregarParticipantes', asyncMiddleware( async (req, res) => {
 
 app.post('/agregarPlanPatria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('INSERT INTO planesPatria VALUES (0,?)', [req.body.plan.trim()]);
     res.redirect('/success');
   } else {
@@ -527,7 +511,6 @@ app.post('/agregarPlanPatria', asyncMiddleware( async (req, res) => {
 
 app.post('/agregarPlanUC', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('INSERT INTO planesUC VALUES (0,?)', [req.body.plan.trim()]);
     res.redirect('/success');
   } else {
@@ -537,7 +520,6 @@ app.post('/agregarPlanUC', asyncMiddleware( async (req, res) => {
 
 app.post('/deleteAgenda2030', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('DELETE FROM agenda2030 WHERE id=?', [req.body.id]);
     res.redirect('/success');
   } else {
@@ -547,7 +529,6 @@ app.post('/deleteAgenda2030', asyncMiddleware( async (req, res) => {
 
 app.post('/deleteAreaPrioritaria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('DELETE FROM areasPrioritarias WHERE id=?', [req.body.id]);
     res.redirect('/success');
   } else {
@@ -557,7 +538,6 @@ app.post('/deleteAreaPrioritaria', asyncMiddleware( async (req, res) => {
 
 app.post('/deletePlanPatria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('DELETE FROM planesPatria WHERE id=?', [req.body.id]);
     res.redirect('/success');
   } else {
@@ -567,7 +547,6 @@ app.post('/deletePlanPatria', asyncMiddleware( async (req, res) => {
 
 app.post('/deletePlanUC', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('DELETE FROM planesUC WHERE id=?', [req.body.id]);
     res.redirect('/success');
   } else {
@@ -581,8 +560,6 @@ app.post('/descoUpdate', asyncMiddleware( async (req, res) => {
       if(err) {
         return res.end('Error al subir archivos. Esto puede ocurrir si el archivo es mayor a 5MB.');
       } else {
-        console.log(req.body);
-        console.log(req.files);
         let nota = req.body.nota == ''? null : req.body.nota;
         if(req.body.status == 4) {
           if(req.files.length) {
@@ -615,7 +592,6 @@ app.post('/descoUpdate', asyncMiddleware( async (req, res) => {
 
 app.post('/editAgenda2030', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('UPDATE agenda2030 SET descripcion=? WHERE id=?', [req.body.plan, req.body.id]);
     res.redirect('/success');
   } else {
@@ -625,7 +601,6 @@ app.post('/editAgenda2030', asyncMiddleware( async (req, res) => {
 
 app.post('/editAreaPrioritaria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('UPDATE areasPrioritarias SET descripcion=? WHERE id=?', [req.body.area, req.body.id]);
     res.redirect('/success');
   } else {
@@ -635,7 +610,6 @@ app.post('/editAreaPrioritaria', asyncMiddleware( async (req, res) => {
 
 app.post('/editPlanPatria', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('UPDATE planesPatria SET descripcion=? WHERE id=?', [req.body.plan, req.body.id]);
     res.redirect('/success');
   } else {
@@ -645,7 +619,6 @@ app.post('/editPlanPatria', asyncMiddleware( async (req, res) => {
 
 app.post('/editPlanUC', asyncMiddleware( async (req, res) => {
   if (await isValidSessionAndRol(req, 2)) {
-    console.log(req.body);
     await pool.query('UPDATE planesUC SET descripcion=? WHERE id=?', [req.body.plan, req.body.id]);
     res.redirect('/success');
   } else {
@@ -714,7 +687,6 @@ app.post('/editProject', asyncMiddleware(async (req, res) => {
           //fechaStatus
           req.body.id,// id
         ]
-        console.log(req.body);
         await pool.query(`UPDATE proyectos
         SET nombreProyecto=?, descripcionGeneral=?, orgResponsable=?,
         responsables=?, estado=?, municipio=?, parroquia=?, direccion=?,
@@ -736,7 +708,6 @@ app.post('/editProject', asyncMiddleware(async (req, res) => {
                 //tipo: inicio, actualizado, etc.
                 i, //numero
               ];
-              console.log(docData);
               await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,?,1,?)', docData);
               await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,?,2,?)', docData);
             }
@@ -770,7 +741,6 @@ app.post('/editUser', asyncMiddleware( async (req, res) => {
 app.post('/finalizarProyecto', asyncMiddleware(async (req, res) => {
   if (await isValidSessionAndRol(req, 3)) {
     await upload.fields(fileFields)(req, res, async function(err) { // Sube los archivos
-      console.log(req.body);
       if (!(await verificarAutoridad(req, req.body.refProyecto))) {
         res.send(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
         throw new Error(`${new Date().toLocaleString()} -> ${req.path}: Fallo en la autorización por ${req.session.user}`);
@@ -778,8 +748,6 @@ app.post('/finalizarProyecto', asyncMiddleware(async (req, res) => {
       if(err) {
         return res.end('Error al subir archivos. Esto puede ocurrir si algun archivo es mayor a 5MB.');
       } else {
-      console.log(req.files);
-        console.log(req.body);
         let numerosAvance = await pool.query('SELECT numero FROM avances WHERE refProyecto=?', [req.body.refProyecto]);
         let lastAvance = Math.max.apply(Math, numerosAvance.map(x => x.numero));
         lastAvance < 0 ? lastAvance = 0 : '';
@@ -855,8 +823,6 @@ app.post('/subirAval', asyncMiddleware(async (req, res) =>{
       if(err) {
         return res.end('Error al subir archivos. Esto puede ocurrir si el archivo es mayor a 5MB.');
       } else {
-        console.log(req.body);
-        console.log(req.files);
         let dataDoc = [
           //id
           req.body.refProyecto,
@@ -887,8 +853,6 @@ app.post('/subirAvance', asyncMiddleware(async (req, res) => {
       if(err) {
         return res.end('Error al subir archivos. Esto puede ocurrir si algun archivo es mayor a 5MB.');
       } else {
-        console.log(req.files);
-        console.log(req.body);
         let numerosAvance = await pool.query('SELECT numero FROM avances WHERE refProyecto=?', [req.body.refProyecto]);
         let lastAvance = Math.max.apply(Math, numerosAvance.map(x => x.numero));
         lastAvance < 0 ? lastAvance = 0 : '';
@@ -927,8 +891,6 @@ app.post('/subirAvance', asyncMiddleware(async (req, res) => {
 }))
 
 app.post('/uploadProject', upload.fields(fileFields),asyncMiddleware(async (req, res) => {
-  console.log(req.body);
-  console.log(req.files);
   if (await isValidSessionAndRol(req,3)) {
     let proyData = [
       // id
@@ -975,7 +937,6 @@ app.post('/uploadProject', upload.fields(fileFields),asyncMiddleware(async (req,
       //fechaStatus
     ]
     let qryRes = await pool.query('INSERT INTO proyectos VALUES(0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,0,NOW(),NOW())', proyData);
-    console.log(req.files['file'+1][0]);
     for(let i = 1; i <= 5; i++) {
       if(req.files['file'+i] && req.body['tagDoc'+i]){
         let docData = [
@@ -988,7 +949,6 @@ app.post('/uploadProject', upload.fields(fileFields),asyncMiddleware(async (req,
           //tipo: inicio, actualizado, etc.
           i, //numero
         ];
-        console.log(docData);
         await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,?,1,?)', docData);
         await pool.query('INSERT INTO documentos VALUES(0,?,NULL,?,?,?,2,?)', docData);
       }
@@ -1017,7 +977,6 @@ function send(res, file) {
 
 // Verifica que el usuario y la clave coincidan
 async function verificarUser(req) {
-  console.log(req.body);
   let resp = await pool.query('SELECT * FROM usuarios WHERE email = ? AND pass = SHA(?)', [req.body.email,req.body.pass]);
   return resp.length ? resp[0] : false;
 }
@@ -1078,3 +1037,4 @@ function num2rolParticipante(num) {
 }
 
 module.exports = app;
+

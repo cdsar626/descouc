@@ -1,8 +1,12 @@
 -- mysql -u root -p < allv4.sql
 
-SET GLOBAL sql_mode="ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION";
-CREATE DATABASE interoperables;
-USE interoperables;
+--SET GLOBAL sql_mode="ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION";
+--CREATE DATABASE interoperables;
+--USE interoperables;
+
+SET sql_mode="ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION";
+USE desco;
+
 
 CREATE TABLE usuarios(
   email     VARCHAR(35) NOT NULL PRIMARY KEY,
@@ -168,9 +172,9 @@ CREATE TABLE participantes(
 -- Se crea un usuario no-root con todos los privilegios sobre
 -- la database interoperables
 -- CREATE USER 'desco'@'localhost' IDENTIFIED BY '12Desco!';
-CREATE USER 'desco'@'localhost' IDENTIFIED WITH mysql_native_password BY '12Desco!';
+--CREATE USER 'desco'@'localhost' IDENTIFIED WITH mysql_native_password BY '12Desco!';
 
-GRANT ALL PRIVILEGES  ON interoperables.* TO 'desco'@'localhost';
+--GRANT ALL PRIVILEGES  ON interoperables.* TO 'desco'@'localhost';
 
 -- Para acceder al sistema se necesita minimo un usuario administrador
 -- Modificar a gusto (email,pass,rol,facultad)
